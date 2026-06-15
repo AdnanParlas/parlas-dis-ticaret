@@ -9,14 +9,21 @@ const REQUESTS_KEY = "parlas_requests";
 let selectedProductId = null;
 let selectedPartnerId = null;
 let selectedCargo = "hava";
+let selectedCurrency = "USD";
+let selectedUnit = "kg";          // kg | ton
 
 /* ---------- Kısayollar ---------- */
 const $  = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
 /* ---------- Para / sayı biçimleme ---------- */
-const fmtUSD = (n) => "$" + n.toLocaleString("tr-TR", { maximumFractionDigits: 0 });
-const fmtTRY = (n) => n.toLocaleString("tr-TR", { maximumFractionDigits: 0 }) + " ₺";
+// USD tutarını seçili para birimine çevirip biçimler
+function fmtPara(usd, kod = selectedCurrency) {
+  const c = KURLAR[kod] || KURLAR.USD;
+  const tutar = usd * c.kur;
+  return c.sembol + tutar.toLocaleString("tr-TR", { maximumFractionDigits: 0 });
+}
+const fmtUSD = (n) => fmtPara(n, "USD");
 
 /* ============================================================
    EKRAN GEÇİŞLERİ (gate <-> uygulama)
@@ -139,6 +146,7 @@ function renderProducts() {
       selectedProductId = card.dataset.id;
       grid.querySelectorAll(".product-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
+      updateRecommended();   // önerilen firmayı işaretle (seçim zorunlu değil)
       calculate();
     });
   });
@@ -149,6 +157,7 @@ function renderProducts() {
    ============================================================ */
 function renderPartners() {
   const grid = $("#partner-grid");
+  const buYil = new Date().getFullYear();
   grid.innerHTML = PARTNERS.map(p => {
     const fiyatEtiket = p.fiyatCarpani < 1 ? `%${Math.round((1 - p.fiyatCarpani) * 100)} daha uygun`
                        : p.fiyatCarpani > 1 ? `%${Math.round((p.fiyatCarpani - 1) * 100)} premium`
@@ -156,11 +165,14 @@ function renderPartners() {
     const sureEtiket = p.gunFark < 0 ? `${Math.abs(p.gunFark)} gün daha hızlı`
                       : p.gunFark > 0 ? `${p.gunFark} gün daha yavaş`
                       : "Standart süre";
+    const yil = buYil - p.kurulus;
     return `
       <button type="button" class="partner-card" data-id="${p.id}">
+        <span class="partner-rec hidden">⭐ Önerilen firma</span>
         <span class="partner-flag">🇨🇳</span>
         <span class="partner-name">${p.ad}</span>
-        <span class="partner-city">${p.sehir}</span>
+        <span class="partner-city">📍 ${p.sehir}, ${p.bolge}</span>
+        <span class="partner-since">🏭 ${p.kurulus}'den beri · ${yil} yıllık tecrübe</span>
         <span class="partner-desc">${p.aciklama}</span>
         <span class="partner-tags">
           <span class="tag tag-price">${fiyatEtiket}</span>
@@ -179,16 +191,41 @@ function renderPartners() {
   });
 }
 
+/* Seçili ürünün önerilen firmasını işaretler (kullanıcıyı seçime zorlamaz) */
+function updateRecommended() {
+  const product = PRODUCTS.find(p => p.id === selectedProductId);
+  const onerilen = product ? product.onerilenFirma : null;
+  $$("#partner-grid .partner-card").forEach(card => {
+    const rec = card.querySelector(".partner-rec");
+    const isRec = card.dataset.id === onerilen;
+    card.classList.toggle("is-recommended", isRec);
+    rec.classList.toggle("hidden", !isRec);
+  });
+}
+
 /* ============================================================
    HESAPLAYICI
    ============================================================ */
 function setupCalculator() {
-  $("#calc-kg").addEventListener("input", calculate);
+  $("#calc-miktar").addEventListener("input", calculate);
+  $("#calc-currency").addEventListener("change", (e) => {
+    selectedCurrency = e.target.value;
+    calculate();
+  });
 
   $$("#cargo-seg .seg-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       selectedCargo = btn.dataset.cargo;
       $$("#cargo-seg .seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      calculate();
+    });
+  });
+
+  $$("#unit-seg .seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedUnit = btn.dataset.unit;
+      $$("#unit-seg .seg-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       calculate();
     });
@@ -205,32 +242,51 @@ function calculate() {
     return;
   }
 
-  let kg = parseFloat($("#calc-kg").value);
-  if (!kg || kg <= 0) {
+  const miktar = parseFloat($("#calc-miktar").value);
+  if (!miktar || miktar <= 0) {
     box.className = "calc-result empty";
-    box.textContent = "Lütfen geçerli bir ağırlık (kg) girin.";
+    box.textContent = `Lütfen geçerli bir ağırlık (${selectedUnit}) girin.`;
     return;
   }
 
+  // Ağırlığı kg'a çevir (ton seçiliyse x1000)
+  const kg = selectedUnit === "ton" ? miktar * 1000 : miktar;
+
   const kargo = KARGO[selectedCargo];
-  const partner = PARTNERS.find(p => p.id === selectedPartnerId); // seçilmemişse null
+  const partner = PARTNERS.find(p => p.id === selectedPartnerId);   // seçilmemişse null
 
   const carpan = partner ? partner.fiyatCarpani : 1;
   const gunFark = partner ? partner.gunFark : 0;
 
-  const birimToplam = product.birimFiyatKgUSD * kg;   // ürün bedeli
-  const nakliyeToplam = kargo.usdKg * kg;             // nakliye bedeli
+  const birimToplam = product.birimFiyatKgUSD * kg;   // ürün bedeli (USD)
+  const nakliyeToplam = kargo.usdKg * kg;             // nakliye bedeli (USD)
   const araToplam = birimToplam + nakliyeToplam;
   const toplamUSD = araToplam * carpan;               // tedarikçi çarpanı uygulanır
-  const toplamTRY = toplamUSD * USD_TRY;
 
   // Teslim süresi (negatife düşmesin)
   const minGun = Math.max(1, kargo.minGun + gunFark);
   const maxGun = Math.max(minGun, kargo.maxGun + gunFark);
 
-  const partnerSatir = partner
-    ? `<span>Tedarikçi: <b>${partner.ad}</b> (${partner.sehir})</span>`
-    : `<span class="warn">Tedarikçi seçilmedi — standart fiyat gösteriliyor.</span>`;
+  // Tedarikçi satırı + önerilen firma bilgisi
+  const onerilen = PARTNERS.find(p => p.id === product.onerilenFirma);
+  let partnerSatir;
+  if (partner) {
+    const onerilenMi = partner.id === product.onerilenFirma ? " ⭐ (önerilen)" : "";
+    partnerSatir = `<span>Tedarikçi: <b>${partner.ad}</b> (${partner.sehir})${onerilenMi}</span>`;
+  } else if (onerilen) {
+    partnerSatir = `<span class="warn">Önerilen firma: <b>${onerilen.ad}</b> — seçmek için karta tıklayın (zorunlu değil).</span>`;
+  } else {
+    partnerSatir = `<span class="warn">Tedarikçi seçilmedi — standart fiyat gösteriliyor.</span>`;
+  }
+
+  // İkincil para birimi referansı (seçili USD değilse USD'yi de göster)
+  const altSatir = selectedCurrency === "USD"
+    ? `≈ ${fmtPara(toplamUSD, "TRY")}`
+    : `≈ ${fmtPara(toplamUSD, "USD")}`;
+
+  const agirlikMetni = selectedUnit === "ton"
+    ? `${miktar.toLocaleString("tr-TR")} ton (${kg.toLocaleString("tr-TR")} kg)`
+    : `${kg.toLocaleString("tr-TR")} kg`;
 
   box.className = "calc-result";
   box.innerHTML = `
@@ -238,14 +294,14 @@ function calculate() {
       <span class="result-ico">${product.ikon}</span>
       <div>
         <strong>${product.ad}</strong>
-        <span class="result-meta">${kg.toLocaleString("tr-TR")} kg · ${kargo.ad}${partner ? " · " + partner.sehir : ""}</span>
+        <span class="result-meta">${agirlikMetni} · ${kargo.ad}${partner ? " · " + partner.sehir : ""}</span>
       </div>
     </div>
     <div class="result-grid">
       <div class="result-cell big">
         <span class="cell-label">Tahmini Toplam Maliyet</span>
-        <span class="cell-value">${fmtUSD(toplamUSD)}</span>
-        <span class="cell-sub">≈ ${fmtTRY(toplamTRY)}</span>
+        <span class="cell-value">${fmtPara(toplamUSD)}</span>
+        <span class="cell-sub">${altSatir}</span>
       </div>
       <div class="result-cell">
         <span class="cell-label">Tahmini Teslim Süresi</span>
@@ -254,8 +310,8 @@ function calculate() {
       </div>
     </div>
     <div class="result-breakdown">
-      <span>Ürün bedeli: <b>${fmtUSD(birimToplam)}</b></span>
-      <span>Nakliye (${fmtUSD(kargo.usdKg)}/kg): <b>${fmtUSD(nakliyeToplam)}</b></span>
+      <span>Ürün bedeli: <b>${fmtPara(birimToplam)}</b></span>
+      <span>Nakliye: <b>${fmtPara(nakliyeToplam)}</b></span>
       ${partnerSatir}
     </div>
   `;

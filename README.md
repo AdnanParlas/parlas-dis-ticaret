@@ -39,8 +39,9 @@ js/app.js         Render, hesaplayıcı, formlar
 
 ## Özelleştirme
 
-İçeriğin çoğu [`js/data.js`](js/data.js) içinden düzenlenebilir: `PRODUCTS`, `PARTNERS`, `KARGO`,
-`USD_TRY`, `YORUMLAR`, `SIRKET` ve `ILETISIM` (telefon/e-posta/adres).
+İçeriğin çoğu [`js/data.js`](js/data.js) içinden düzenlenebilir: `PRODUCTS` (ürünler, fotoğraf URL'leri,
+önerilen firma), `PARTNERS` (Çinli firmalar, konum, kuruluş yılı), `KARGO`, `KURLAR` (para birimleri/kurlar),
+`YORUMLAR`, `SIRKET` ve `ILETISIM` (telefon/e-posta/adres).
 
 ## Güvenlik notu
 
