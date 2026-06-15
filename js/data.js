@@ -103,6 +103,7 @@ const PRODUCTS = [
   { id: "kaucuk",     ad: "Kauçuk Hammadde",         kategori: "Polimer",    ikon: "🛞", birimFiyatKgUSD: 1.9,  gorsel: "kaucuk",    onerilenFirma: "qingchem" },
   { id: "kumas",      ad: "Tekstil Kumaş (Top)",     kategori: "Tekstil",    ikon: "🧵", birimFiyatKgUSD: 6.0,  gorsel: "kumas",     onerilenFirma: "shaoxtex", indirim: 0.10 },
   { id: "iplik",      ad: "Polyester İplik",         kategori: "Tekstil",    ikon: "🧶", birimFiyatKgUSD: 4.0,  gorsel: "iplik",     onerilenFirma: "shaoxtex" },
+  { id: "eldiven",    ad: "File Eldiveni",           kategori: "Tekstil",    ikon: "🧤", birimFiyatKgUSD: 5.0,  gorsel: "eldiven",   onerilenFirma: "shaoxtex" },
   { id: "kimyasal",   ad: "Endüstriyel Kimyasal",    kategori: "Kimya",      ikon: "🧪", birimFiyatKgUSD: 2.2,  gorsel: "kimyasal",  onerilenFirma: "qingchem" },
   { id: "ahsap",      ad: "Ahşap / Kereste",         kategori: "İnşaat",     ikon: "🪵", birimFiyatKgUSD: 0.7,  gorsel: "ahsap",     onerilenFirma: "qingchem" }
 ];

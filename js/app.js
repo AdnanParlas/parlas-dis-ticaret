@@ -289,6 +289,28 @@ function urunGorseli(key) {
             </g>`).join("")}
         </g>`);
 
+    case "eldiven": { // file (ağ dokulu) eldiven
+      // eldiven parçaları (parmaklar + avuç + başparmak)
+      const parts = `
+        <rect x="163" y="98"  width="15" height="62" rx="7"/>
+        <rect x="181" y="90"  width="15" height="70" rx="7"/>
+        <rect x="199" y="92"  width="15" height="68" rx="7"/>
+        <rect x="217" y="100" width="15" height="60" rx="7"/>
+        <rect x="160" y="150" width="80" height="72" rx="20"/>
+        <rect x="142" y="166" width="15" height="46" rx="7" transform="rotate(-32 149 189)"/>`;
+      // ağ dokusu (çapraz çizgiler), eldivene kırpılır
+      let mesh = "";
+      for (let x = 120; x <= 280; x += 12) mesh += `<line x1="${x}" y1="80" x2="${x + 90}" y2="240"/>`;
+      for (let x = 120; x <= 300; x += 12) mesh += `<line x1="${x}" y1="240" x2="${x + 90}" y2="80"/>`;
+      return frame("#f3edf7", "#e3d6ec",
+        grad("gl", "#c98be0", "#9a52c2") +
+        `<clipPath id="${id}clip">${parts}</clipPath>`,
+        `<g fill="${u("gl")}" stroke="#7e3ba6" stroke-width="2.5">${parts}</g>
+         <g clip-path="url(#${id}clip)" stroke="#ffffff" stroke-width="2.5" opacity="0.5">${mesh}</g>
+         <rect x="160" y="206" width="80" height="20" rx="8" fill="#7e3ba6"/>
+         <rect x="160" y="206" width="80" height="6" fill="#ffffff" opacity="0.25"/>`);
+    }
+
     default:
       return frame("#eef2f7", "#dadfe7", "", `<text x="200" y="175" font-size="90" text-anchor="middle">📦</text>`);
   }
