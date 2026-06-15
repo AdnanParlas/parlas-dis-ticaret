@@ -87,6 +87,13 @@ function stars(n) {
   return "★★★★★☆☆☆☆☆".slice(5 - n, 10 - n);
 }
 
+/* ---------- Kategori rengi (renkli etiket) ---------- */
+const KAT_RENK = {
+  "Metal": "#64748b", "Polimer": "#06b6d4", "Tekstil": "#ec4899",
+  "Kimya": "#8b5cf6", "İnşaat": "#f59e0b", "Enerji": "#22c55e", "Aksesuar": "#f43f5e"
+};
+const katRenk = (k) => KAT_RENK[k] || "#6d28d9";
+
 /* ============================================================
    ŞİRKET HAKKINDA + İSTATİSTİK + YORUMLAR (render)
    ============================================================ */
@@ -337,7 +344,7 @@ function renderProducts() {
       <span class="product-media">${rozet}${urunGorseli(p.gorsel)}</span>
       <span class="product-body">
         <span class="product-name">${p.ad}</span>
-        <span class="product-cat">${p.kategori}</span>
+        <span class="product-cat" style="color:${katRenk(p.kategori)};border-color:${katRenk(p.kategori)}55;background:${katRenk(p.kategori)}14">${p.kategori}</span>
         ${fiyatHTML}
       </span>
     </button>`;

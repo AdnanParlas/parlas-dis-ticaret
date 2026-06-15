@@ -3,24 +3,36 @@
    Tek temadan renk yönetimi için CSS değişkenleri.
    ============================================================ */
 :root {
-  --navy:      #20155e;   /* derin indigo */
-  --navy-2:    #5b2a9c;   /* mor */
-  --red:       #ff5a5f;   /* canlı mercan */
-  --red-dark:  #e63946;
+  --navy:      #1e1066;   /* derin indigo */
+  --navy-2:    #6d28d9;   /* canlı mor */
+  --red:       #ff4d6d;   /* canlı mercan/pembe */
+  --red-dark:  #e11d48;
   --gold:      #ffb703;   /* canlı amber */
+  --pink:      #ec4899;   /* fuşya */
   --accent:    #06b6d4;   /* turkuaz vurgu */
-  --bg:        #f3f1fb;
+  --lime:      #22d3a0;   /* nane yeşili */
+  --bg:        #f4f1fc;
   --card:      #ffffff;
   --text:      #1c1b33;
   --muted:     #6b6890;
-  --line:      #e7e3f3;
+  --line:      #e9e4f6;
   --ok:        #16a34a;
   --radius:    16px;
-  --shadow:    0 14px 38px rgba(32,21,94,.14);
-  --shadow-sm: 0 4px 14px rgba(32,21,94,.10);
-  --grad-hero: linear-gradient(135deg, #20155e 0%, #5b2a9c 52%, #ff5a5f 120%);
-  --grad-accent: linear-gradient(135deg, #ff5a5f, #ffb703);
+  --shadow:    0 16px 42px rgba(40,18,110,.16);
+  --shadow-sm: 0 5px 16px rgba(40,18,110,.10);
+  --grad-hero: linear-gradient(135deg, #2a0e6b 0%, #6d28d9 32%, #db2777 66%, #ff7a45 105%);
+  --grad-accent: linear-gradient(135deg, #ff4d6d, #ff8a3d 55%, #ffb703);
+  --grad-cyan: linear-gradient(135deg, #06b6d4, #6d28d9);
 }
+
+/* ---------- Animasyonlar ---------- */
+@keyframes gradShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes blobFloat { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-24px) scale(1.12); } 100% { transform: translate(0,0) scale(1); } }
+@keyframes blobFloat2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-26px,20px) scale(1.1); } 100% { transform: translate(0,0) scale(1); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes floatY { 0% { transform: translateY(0); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0); } }
+@keyframes shine { from { left: -60%; } to { left: 140%; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -47,8 +59,18 @@ a { color: inherit; text-decoration: none; }
   transition: transform .08s ease, background .15s ease, box-shadow .15s ease;
 }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: var(--grad-accent); color: #fff; box-shadow: 0 6px 16px rgba(255,90,95,.35); }
-.btn-primary:hover { filter: brightness(1.05); box-shadow: 0 8px 22px rgba(255,90,95,.45); }
+.btn-primary {
+  position: relative; overflow: hidden;
+  background: var(--grad-accent); background-size: 160% 160%; color: #fff;
+  box-shadow: 0 8px 20px rgba(255,77,109,.4);
+}
+.btn-primary:hover { filter: brightness(1.06); box-shadow: 0 12px 28px rgba(255,77,109,.5); transform: translateY(-1px); }
+.btn-primary::after {
+  content: ""; position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+  transform: skewX(-20deg); pointer-events: none;
+}
+.btn-primary:hover::after { animation: shine .8s ease; }
 .btn-lg { padding: 15px 30px; font-size: 17px; }
 .btn-ghost {
   background: transparent; color: #fff;
@@ -73,15 +95,25 @@ a { color: inherit; text-decoration: none; }
   padding: 40px 24px; position: relative; overflow: hidden;
 }
 .auth-bg {
-  position: absolute; inset: 0;
-  background: var(--grad-hero);
+  position: absolute; inset: 0; overflow: hidden;
+  background: var(--grad-hero); background-size: 220% 220%;
+  animation: gradShift 18s ease infinite;
   z-index: 0;
 }
 .auth-bg::after {
   content: ""; position: absolute; inset: 0;
-  background-image: radial-gradient(circle at 18% 18%, rgba(255,183,3,.28), transparent 38%),
-                    radial-gradient(circle at 88% 82%, rgba(6,182,212,.30), transparent 42%);
+  background-image: radial-gradient(circle at 18% 18%, rgba(255,183,3,.32), transparent 38%),
+                    radial-gradient(circle at 88% 82%, rgba(6,182,212,.34), transparent 42%),
+                    radial-gradient(circle at 60% 30%, rgba(236,72,153,.26), transparent 40%);
 }
+/* yüzen renkli ışıltılar */
+.auth-blob {
+  position: absolute; border-radius: 50%; filter: blur(46px); opacity: .55; z-index: 0;
+  pointer-events: none;
+}
+.auth-blob.b1 { width: 300px; height: 300px; background: #ff4d6d; top: -60px; left: -40px; animation: blobFloat 11s ease-in-out infinite; }
+.auth-blob.b2 { width: 260px; height: 260px; background: #06b6d4; bottom: -50px; right: -30px; animation: blobFloat2 13s ease-in-out infinite; }
+.auth-blob.b3 { width: 200px; height: 200px; background: #ffb703; bottom: 40px; left: 30%; animation: blobFloat 15s ease-in-out infinite; }
 
 /* Sol tanıtım sütunu */
 .auth-intro {
@@ -97,20 +129,33 @@ a { color: inherit; text-decoration: none; }
   display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 10px; margin: 22px 0;
 }
-.auth-stats .stat { background: rgba(255,255,255,.12); border-radius: 12px; padding: 12px 8px; text-align: center; }
-.auth-stats .stat-num { display: block; font-size: 22px; font-weight: 800; color: var(--gold); }
-.auth-stats .stat-label { display: block; font-size: 11.5px; color: #e6e1ff; margin-top: 2px; }
+.auth-stats .stat {
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22);
+  border-radius: 14px; padding: 14px 8px; text-align: center;
+  transition: transform .15s ease, background .15s ease;
+}
+.auth-stats .stat:hover { transform: translateY(-4px); background: rgba(255,255,255,.24); }
+.auth-stats .stat-num { display: block; font-size: 24px; font-weight: 800; color: var(--gold); text-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.auth-stats .stat-label { display: block; font-size: 11.5px; color: #f0ecff; margin-top: 2px; }
 .auth-reviews h3 { font-size: 16px; margin-bottom: 12px; color: #fff; }
 .auth-reviews .review { background: rgba(255,255,255,.94); margin-bottom: 12px; }
 
 .auth-card {
-  position: relative; z-index: 1;
+  position: relative; z-index: 1; overflow: hidden;
   width: 100%; max-width: 430px;
-  background: var(--card);
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-  padding: 32px 30px;
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(20,8,60,.45);
+  padding: 34px 30px 30px;
+  animation: fadeUp .6s ease both;
 }
+.auth-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+  background: var(--grad-accent);
+}
+.auth-card .brand-logo { animation: floatY 4s ease-in-out infinite; }
 .auth-card .brand { justify-content: flex-start; text-align: left; margin-bottom: 22px; }
 .brand-card-only { display: none; }
 
@@ -130,7 +175,7 @@ a { color: inherit; text-decoration: none; }
   flex: 1; border: none; background: transparent; cursor: pointer;
   padding: 10px; border-radius: 8px; font-weight: 600; font-size: 15px; color: var(--muted);
 }
-.auth-tab.active { background: var(--navy); color: #fff; }
+.auth-tab.active { background: var(--grad-accent); color: #fff; box-shadow: 0 6px 16px rgba(255,77,109,.4); }
 
 .auth-form { display: flex; flex-direction: column; gap: 14px; }
 .auth-form label, .request-form label, .calc-field label {
@@ -180,14 +225,17 @@ a { color: inherit; text-decoration: none; }
    HERO
    ============================================================ */
 .hero {
-  background: var(--grad-hero);
-  color: #fff; padding: 56px 20px; position: relative; overflow: hidden;
+  background: var(--grad-hero); background-size: 220% 220%;
+  animation: gradShift 18s ease infinite;
+  color: #fff; padding: 60px 20px; position: relative; overflow: hidden;
 }
 .hero::after {
   content: ""; position: absolute; inset: 0;
-  background-image: radial-gradient(circle at 85% 15%, rgba(6,182,212,.30), transparent 40%);
+  background-image: radial-gradient(circle at 85% 15%, rgba(6,182,212,.34), transparent 40%),
+                    radial-gradient(circle at 12% 85%, rgba(255,183,3,.26), transparent 42%);
 }
-.hero-inner { position: relative; z-index: 1; }
+.hero-inner { position: relative; z-index: 1; animation: fadeUp .7s ease both; }
+.hero h2 { text-shadow: 0 4px 18px rgba(0,0,0,.18); }
 .hero-inner { max-width: 760px; margin: 0 auto; text-align: center; }
 .hero h2 { font-size: 32px; line-height: 1.25; margin-bottom: 14px; }
 .hero p { color: #d3dcec; font-size: 17px; margin-bottom: 26px; }
@@ -200,6 +248,12 @@ a { color: inherit; text-decoration: none; }
   background: var(--card); border-radius: var(--radius);
   box-shadow: var(--shadow-sm); padding: 30px;
   margin-top: 28px; scroll-margin-top: 80px;
+  position: relative; overflow: hidden;
+  animation: fadeUp .6s ease both;
+}
+.block::before {
+  content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+  background: var(--grad-accent); opacity: .9;
 }
 .block-title { font-size: 23px; color: var(--navy); margin-bottom: 6px; }
 .block-title::after {
@@ -220,9 +274,11 @@ a { color: inherit; text-decoration: none; }
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
 }
 .about-stats .stat {
-  background: var(--grad-hero); color: #fff;
-  border-radius: 12px; padding: 18px 10px; text-align: center; box-shadow: var(--shadow-sm);
+  background: var(--grad-hero); background-size: 180% 180%; color: #fff;
+  border-radius: 14px; padding: 18px 10px; text-align: center; box-shadow: var(--shadow-sm);
+  transition: transform .15s ease, box-shadow .15s ease;
 }
+.about-stats .stat:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
 .about-stats .stat-num { display: block; font-size: 28px; font-weight: 800; color: var(--gold); }
 .about-stats .stat-label { display: block; font-size: 12.5px; color: #ece8ff; margin-top: 4px; }
 
@@ -327,7 +383,11 @@ a { color: inherit; text-decoration: none; }
 }
 .product-body { display: flex; flex-direction: column; gap: 3px; padding: 12px 14px 14px; }
 .product-name { font-weight: 700; font-size: 15px; }
-.product-cat { font-size: 12.5px; color: var(--muted); }
+.product-cat {
+  align-self: flex-start; font-size: 11.5px; font-weight: 700;
+  padding: 2px 9px; border-radius: 20px; border: 1px solid var(--line);
+  background: #f3f1fb; color: var(--muted);
+}
 .product-price { font-size: 13px; font-weight: 700; color: var(--red); margin-top: 2px; }
 .price-old { color: var(--muted); text-decoration: line-through; font-weight: 600; margin-right: 6px; }
 .price-new { color: var(--red); }
