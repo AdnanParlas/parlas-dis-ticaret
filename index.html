@@ -102,8 +102,9 @@
         <nav class="topnav">
           <a href="#hakkimizda">Hakkımızda</a>
           <a href="#hesaplayici">Maliyet Hesapla</a>
+          <a href="#doviz">Döviz</a>
+          <a href="#abonelik">Abonelik</a>
           <a href="#talep">Ürün Talebi</a>
-          <a href="#yorumlar">Yorumlar</a>
           <a href="#iletisim">İletişim</a>
         </nav>
         <div class="topbar-user">
@@ -173,6 +174,7 @@
                 <option value="TRY">₺ Türk Lirası</option>
                 <option value="EUR">€ Euro</option>
                 <option value="GBP">£ Sterlin</option>
+                <option value="CNY">¥ Çin Yuanı</option>
               </select>
             </div>
           </div>
@@ -183,6 +185,45 @@
           <p class="disclaimer">⚠️ Gösterilen değerler tahminîdir; gerçek fiyat ürün, hacim, gümrük
             ve güncel kurlara göre değişebilir.</p>
         </div>
+      </section>
+
+      <!-- ===== DÖVİZ ÇEVİRİCİ + KUR TABLOSU ===== -->
+      <section id="doviz" class="block">
+        <h3 class="block-title">Döviz Çevirici</h3>
+        <p class="block-sub">Bir tutar yazın, anında başka para birimine çevirin. Ortadaki düğmeyle yönü değiştirebilirsiniz.</p>
+
+        <div class="converter">
+          <div class="conv-field">
+            <input type="number" id="conv-amount" min="0" step="any" value="1000" />
+            <select id="conv-from"></select>
+          </div>
+          <button type="button" id="conv-swap" class="conv-swap" title="Para birimlerini değiştir">⇆</button>
+          <div class="conv-field">
+            <input type="text" id="conv-result" readonly />
+            <select id="conv-to"></select>
+          </div>
+        </div>
+        <p id="conv-line" class="conv-line"></p>
+
+        <h4 class="sub-head">Güncel Kurlar ve Günlük Değişim</h4>
+        <p class="block-sub">Para birimlerinin Türk Lirası karşısındaki tahmini değeri ve günlük artış/azalışı.</p>
+        <div class="rate-table-wrap">
+          <table class="rate-table">
+            <thead>
+              <tr><th>Para Birimi</th><th>1 Birim = ₺</th><th>Günlük Değişim</th></tr>
+            </thead>
+            <tbody id="rate-tbody"><!-- JS doldurur --></tbody>
+          </table>
+        </div>
+        <p class="disclaimer">⚠️ Kurlar örnek/tahminîdir; gerçek zamanlı veri değildir.</p>
+      </section>
+
+      <!-- ===== ABONELİK / DANIŞMANLIK ===== -->
+      <section id="abonelik" class="block">
+        <h3 class="block-title">Abonelik & Özel Danışmanlık</h3>
+        <p class="block-sub">Abone olun; size özel ürün önerileri, sipariş adetleri ve abonelere özel tekliflerden yararlanın.</p>
+        <div id="abonelik-icerik"><!-- JS: planlar veya abone paneli --></div>
+        <p class="disclaimer">ℹ️ Sunucusuz demo: gerçek ödeme alınmaz, abonelik yalnızca bu tarayıcıda saklanır.</p>
       </section>
 
       <!-- ===== ÜRÜN TALEP ===== -->

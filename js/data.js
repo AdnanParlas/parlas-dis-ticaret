@@ -6,10 +6,36 @@
 /* Para birimleri. kur = 1 USD karşılığı o para biriminden kaç birim.
    İstediğiniz zaman güncelleyin. */
 const KURLAR = {
-  USD: { ad: "ABD Doları",   sembol: "$", kur: 1 },
-  TRY: { ad: "Türk Lirası",  sembol: "₺", kur: 38.5 },
-  EUR: { ad: "Euro",         sembol: "€", kur: 0.92 },
-  GBP: { ad: "İngiliz Sterlini", sembol: "£", kur: 0.78 }
+  USD: { ad: "ABD Doları",       sembol: "$", kur: 1,    degisim: +0.42 },
+  TRY: { ad: "Türk Lirası",      sembol: "₺", kur: 38.5, degisim: -0.61 },
+  EUR: { ad: "Euro",             sembol: "€", kur: 0.92, degisim: +0.18 },
+  GBP: { ad: "İngiliz Sterlini", sembol: "£", kur: 0.78, degisim: -0.35 },
+  CNY: { ad: "Çin Yuanı",        sembol: "¥", kur: 7.2,  degisim: -0.12 }
+};
+// degisim = ilgili para biriminin TRY karşısında günlük tahmini % değişimi
+
+/* Abonelik / danışmanlık paketleri ve abonelere özel içerik.
+   Not: Sunucusuz demo — gerçek ödeme alınmaz, abonelik sadece bu tarayıcıda saklanır. */
+const ABONELIK = {
+  planlar: [
+    { id: "standart", ad: "Standart Danışmanlık", fiyatUSD: 49, periyot: "ay",
+      ozellikler: ["Aylık 2 ürün maliyet analizi", "E-posta desteği", "Tedarikçi firma önerisi"] },
+    { id: "premium", ad: "Premium Danışmanlık", fiyatUSD: 99, periyot: "ay", oneCikan: true,
+      ozellikler: ["Sınırsız ürün analizi", "Öncelikli WhatsApp desteği", "Pazarlık & numune yönetimi",
+                   "Abonelere özel ek %5 indirim", "Aylık pazar/fiyat raporu"] }
+  ],
+  // Abonelere önerilen ürünler ve tavsiye edilen sipariş adetleri
+  onerilenler: [
+    { urunId: "demir",   adet: 5,   birim: "ton", not: "İnşaat sezonu öncesi stok fırsatı" },
+    { urunId: "plastik", adet: 2,   birim: "ton", not: "İndirimde — granül fiyatı yükselişte" },
+    { urunId: "bakir",   adet: 500, birim: "kg",  not: "Fiyat artışı bekleniyor, erken alım avantajlı" }
+  ],
+  // Abonelere özel teklifler
+  teklifler: [
+    { baslik: "Çelik telde ekstra %5", aciklama: "Premium abonelere Tangshan kampanyasına ek %5 indirim." },
+    { baslik: "Ücretsiz numune", aciklama: "Ayda bir ürün için ücretsiz numune kargosu." },
+    { baslik: "Öncelikli sevkiyat", aciklama: "Abone siparişleri 2 gün daha hızlı yola çıkar." }
+  ]
 };
 
 /* İletişim & konum bilgileri — placeholder. Gerçek bilgilerinizle değiştirin. */

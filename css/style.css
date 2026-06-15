@@ -11,6 +11,10 @@
   --pink:      #ec4899;   /* fuşya */
   --accent:    #06b6d4;   /* turkuaz vurgu */
   --lime:      #22d3a0;   /* nane yeşili */
+  --neon-cyan:   #22d3ee;
+  --neon-pink:   #ff4d9d;
+  --neon-purple: #b06bff;
+  --neon-green:  #34d399;
   --bg:        #f4f1fc;
   --card:      #ffffff;
   --text:      #1c1b33;
@@ -560,4 +564,133 @@ a { color: inherit; text-decoration: none; }
   .topnav a { font-size: 13.5px; }
   .topbar-user { margin-left: auto; }
   .cell-value { font-size: 22px; }
+}
+
+/* =====================================================================
+   KOYU NEON TEMA — giriş sonrası ana uygulama (#app) + yeni bölümler
+   ===================================================================== */
+#app {
+  --d-surface:  #15122e;
+  --d-surface2: #1d1942;
+  --d-border:   rgba(150,120,255,.20);
+  --d-text:     #ece9fb;
+  --d-muted:    #a79fd6;
+  background:
+    radial-gradient(circle at 8% 2%, rgba(34,211,238,.10), transparent 40%),
+    radial-gradient(circle at 92% 8%, rgba(255,77,157,.12), transparent 42%),
+    radial-gradient(circle at 50% 100%, rgba(124,58,237,.16), transparent 55%),
+    linear-gradient(180deg, #0c0a1e 0%, #08071a 100%);
+  color: var(--d-text);
+}
+#app .block {
+  background: linear-gradient(180deg, rgba(29,25,66,.88), rgba(19,16,42,.92));
+  border: 1px solid var(--d-border);
+  box-shadow: 0 18px 44px rgba(0,0,0,.45);
+}
+#app .block-title { color: #fff; text-shadow: 0 0 20px rgba(176,107,255,.55); }
+#app .block-sub, #app .disclaimer, #app .disclaimer-sm { color: var(--d-muted); }
+#app .sub-head { color: #fff; }
+
+/* Form alanları */
+#app input, #app textarea, #app select { background: #221d49; border-color: var(--d-border); color: #fff; }
+#app input:focus, #app textarea:focus, #app select:focus { border-color: var(--neon-purple); box-shadow: 0 0 0 3px rgba(176,107,255,.25); }
+#app ::placeholder { color: #8e87bd; }
+
+/* Ürün & firma kartları */
+#app .product-card, #app .partner-card { background: var(--d-surface2); border-color: var(--d-border); }
+#app .product-card:hover, #app .partner-card:hover { box-shadow: 0 0 0 1px var(--neon-cyan), 0 12px 28px rgba(34,211,238,.20); }
+#app .product-name, #app .partner-name { color: #fff; }
+#app .partner-city, #app .partner-since, #app .partner-desc { color: var(--d-muted); }
+#app .product-card.selected { background: #2a1640; }
+#app .partner-card.selected { background: #102b3a; }
+
+/* Hesaplama sonucu / döküm */
+#app .calc { border-top-color: var(--d-border); }
+#app .seg-btn { background: #221d49; border-color: var(--d-border); color: var(--d-text); }
+#app .calc-result { background: linear-gradient(135deg, #1b1740, #221c4d); border-color: var(--d-border); }
+#app .calc-result.empty { color: var(--d-muted); }
+#app .result-head strong { color: #fff; }
+#app .result-meta, #app .cell-label, #app .cell-sub { color: var(--d-muted); }
+#app .result-cell { background: #14112e; box-shadow: none; }
+#app .cell-value { color: #fff; }
+#app .bd-title { color: #fff; }
+#app .breakdown-list { background: #14112e; border-color: var(--d-border); }
+#app .bd-row { color: var(--d-text); border-bottom-color: var(--d-border); }
+#app .bd-row.subtotal { color: #cbb6ff; border-top-color: var(--d-border); }
+#app .bd-row.total { color: #fff; border-top-color: var(--neon-purple); }
+#app .bd-note { color: var(--d-muted); }
+#app .kampanya-ipucu { background: rgba(255,138,61,.12); border-color: rgba(255,138,61,.4); color: #ffd9b3; }
+
+/* Yorumlar / iletişim / konum */
+#app .review, #app .contact-card, #app .location-info { background: var(--d-surface2); border-color: var(--d-border); }
+#app .review-text, #app .about-paragraph { color: var(--d-text); }
+#app .review-name, #app .contact-value { color: #fff; }
+#app .review-city, #app .contact-label { color: var(--d-muted); }
+#app .contact-card:hover { box-shadow: 0 0 0 1px var(--neon-pink), 0 12px 28px rgba(255,77,157,.2); }
+#app .location-map { border: 1px solid var(--d-border); }
+
+/* =================== DÖVİZ ÇEVİRİCİ =================== */
+.converter { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.conv-field { flex: 1; min-width: 220px; display: flex; gap: 8px; }
+.conv-field input { flex: 1; min-width: 0; font-size: 18px; font-weight: 700; }
+.conv-field select { flex: none; }
+.conv-swap {
+  flex: none; width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--grad-accent); color: #fff; font-size: 22px;
+  box-shadow: 0 8px 20px rgba(255,77,109,.45); transition: transform .3s ease;
+}
+.conv-swap:hover { transform: rotate(180deg) scale(1.05); }
+.conv-line { margin-top: 16px; font-size: 18px; color: #fff; }
+.conv-line b { color: var(--neon-cyan); }
+.conv-rate { font-size: 13px; color: #a79fd6; font-weight: 600; }
+
+/* =================== KUR TABLOSU =================== */
+.rate-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(150,120,255,.20); margin-top: 8px; }
+.rate-table { width: 100%; border-collapse: collapse; }
+.rate-table th {
+  text-align: left; font-size: 12.5px; padding: 13px 16px; text-transform: uppercase; letter-spacing: .4px;
+  background: rgba(124,58,237,.22); color: #fff;
+}
+.rate-table td { padding: 13px 16px; border-top: 1px solid rgba(150,120,255,.18); font-size: 14.5px; color: var(--d-text); }
+.rate-sym { font-weight: 800; color: #fff; }
+.rate-code { color: #a79fd6; font-size: 12px; }
+.rate-val { font-weight: 700; color: #fff; }
+.rate-chg { font-weight: 800; white-space: nowrap; }
+.rate-chg.up { color: var(--neon-green); }
+.rate-chg.down { color: #ff6b81; }
+
+/* =================== ABONELİK =================== */
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.plan-card {
+  position: relative; background: var(--d-surface2); border: 1px solid var(--d-border);
+  border-radius: 16px; padding: 26px 22px; display: flex; flex-direction: column;
+}
+.plan-card.one-cikan { border-color: var(--neon-pink); box-shadow: 0 0 0 1px var(--neon-pink), 0 0 34px rgba(255,77,157,.28); }
+.plan-badge { position: absolute; top: -12px; left: 22px; background: var(--grad-accent); color: #fff; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; }
+.plan-ad { font-size: 19px; color: #fff; margin-bottom: 8px; }
+.plan-fiyat { font-size: 34px; font-weight: 800; color: #fff; }
+.plan-fiyat span { font-size: 15px; color: var(--d-muted); font-weight: 600; }
+.plan-ozellik { list-style: none; margin: 16px 0 20px; display: flex; flex-direction: column; gap: 9px; }
+.plan-ozellik li { color: var(--d-text); font-size: 14.5px; }
+.plan-btn { width: 100%; margin-top: auto; }
+
+.sub-head-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+.sub-rozet { display: inline-block; background: var(--grad-accent); color: #fff; font-weight: 800; padding: 8px 16px; border-radius: 30px; box-shadow: 0 6px 18px rgba(255,77,109,.4); }
+.sub-since { color: var(--d-muted); font-size: 13px; margin-top: 6px; }
+.btn-ghost-dark { background: transparent; border: 1px solid var(--d-border); color: var(--d-text); }
+.btn-ghost-dark:hover { background: rgba(255,255,255,.06); }
+.sub-blok-baslik { color: #fff; margin: 24px 0 10px; font-size: 16px; }
+.oneri-adet { font-weight: 800; color: var(--neon-cyan); white-space: nowrap; }
+.oneri-not { color: var(--d-muted); font-size: 13.5px; }
+.teklif-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.teklif-card { background: #14112e; border: 1px solid var(--d-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.teklif-card strong { color: #fff; }
+.teklif-card span { color: var(--d-muted); font-size: 13.5px; }
+.sub-danisman { margin-top: 20px; padding: 14px 16px; border-radius: 12px; background: rgba(34,211,238,.10); border: 1px solid rgba(34,211,238,.3); color: var(--d-text); }
+.sub-danisman a { color: var(--neon-cyan); font-weight: 700; }
+
+@media (max-width: 560px) {
+  .conv-field { min-width: 100%; }
+  .conv-swap { transform: rotate(90deg); }
+  .conv-swap:hover { transform: rotate(270deg) scale(1.05); }
 }

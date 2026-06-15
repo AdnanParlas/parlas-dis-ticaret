@@ -628,6 +628,155 @@ function setupContact() {
 }
 
 /* ============================================================
+   DÖVİZ ÇEVİRİCİ
+   ============================================================ */
+const nfmt = (n, d = 2) => n.toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function setupConverter() {
+  const from = $("#conv-from"), to = $("#conv-to");
+  const opts = Object.keys(KURLAR).map(k => `<option value="${k}">${k} — ${KURLAR[k].ad}</option>`).join("");
+  from.innerHTML = opts; to.innerHTML = opts;
+  from.value = "TRY"; to.value = "USD";   // varsayılan: 1000 ₺ = ? $
+
+  const convert = () => {
+    const amt = parseFloat($("#conv-amount").value);
+    const f = KURLAR[from.value], t = KURLAR[to.value];
+    if (!amt || amt < 0 || !f || !t) {
+      $("#conv-result").value = "";
+      $("#conv-line").textContent = "";
+      return;
+    }
+    const usd = amt / f.kur;           // önce USD'ye
+    const sonuc = usd * t.kur;          // hedef birime
+    $("#conv-result").value = nfmt(sonuc);
+    $("#conv-line").innerHTML =
+      `<b>${nfmt(amt)} ${f.sembol}</b> = <b>${nfmt(sonuc)} ${t.sembol}</b>
+       <span class="conv-rate">(1 ${from.value} = ${nfmt(t.kur / f.kur, 4)} ${to.value})</span>`;
+  };
+
+  $("#conv-amount").addEventListener("input", convert);
+  from.addEventListener("change", convert);
+  to.addEventListener("change", convert);
+  $("#conv-swap").addEventListener("click", () => {
+    const tmp = from.value; from.value = to.value; to.value = tmp;
+    convert();
+  });
+  convert();
+}
+
+/* ============================================================
+   KUR DEĞİŞİM TABLOSU
+   ============================================================ */
+function renderRateTable() {
+  const tbody = $("#rate-tbody");
+  const tryKur = KURLAR.TRY.kur;
+  const rows = Object.keys(KURLAR).filter(k => k !== "TRY").map(k => {
+    const c = KURLAR[k];
+    const tryDeger = tryKur / c.kur;            // 1 birim = ? ₺
+    const yon = c.degisim >= 0 ? "up" : "down";
+    const ok = c.degisim >= 0 ? "▲" : "▼";
+    return `
+      <tr>
+        <td><span class="rate-sym">${c.sembol}</span> ${c.ad} <span class="rate-code">${k}</span></td>
+        <td class="rate-val">${nfmt(tryDeger)} ₺</td>
+        <td class="rate-chg ${yon}">${ok} %${nfmt(Math.abs(c.degisim))}</td>
+      </tr>`;
+  }).join("");
+  tbody.innerHTML = rows;
+}
+
+/* ============================================================
+   ABONELİK / DANIŞMANLIK
+   ============================================================ */
+const SUB_KEY = "parlas_subscription";
+const getSub = () => { try { return JSON.parse(localStorage.getItem(SUB_KEY)); } catch { return null; } };
+
+function renderAbonelik() {
+  const box = $("#abonelik-icerik");
+  const sub = getSub();
+
+  if (!sub) {
+    // Plan kartları
+    box.innerHTML = `
+      <div class="plan-grid">
+        ${ABONELIK.planlar.map(p => `
+          <div class="plan-card${p.oneCikan ? " one-cikan" : ""}">
+            ${p.oneCikan ? `<span class="plan-badge">⭐ En Popüler</span>` : ""}
+            <h4 class="plan-ad">${p.ad}</h4>
+            <div class="plan-fiyat">${fmtPara(p.fiyatUSD)}<span>/${p.periyot}</span></div>
+            <ul class="plan-ozellik">
+              ${p.ozellikler.map(o => `<li>✓ ${o}</li>`).join("")}
+            </ul>
+            <button type="button" class="btn btn-primary plan-btn" data-plan="${p.id}">Abone Ol</button>
+          </div>`).join("")}
+      </div>`;
+    box.querySelectorAll(".plan-btn").forEach(btn => {
+      btn.addEventListener("click", () => abone(btn.dataset.plan));
+    });
+  } else {
+    // Abone paneli
+    const plan = ABONELIK.planlar.find(p => p.id === sub.planId) || ABONELIK.planlar[0];
+    const onerilenler = ABONELIK.onerilenler.map(o => {
+      const u = PRODUCTS.find(p => p.id === o.urunId) || {};
+      return `
+        <tr>
+          <td>${u.ikon || "📦"} <b>${u.ad || o.urunId}</b></td>
+          <td class="oneri-adet">${o.adet.toLocaleString("tr-TR")} ${o.birim}</td>
+          <td class="oneri-not">${o.not}</td>
+        </tr>`;
+    }).join("");
+    box.innerHTML = `
+      <div class="sub-active">
+        <div class="sub-head-row">
+          <div>
+            <span class="sub-rozet">⭐ ${plan.ad} aboneliği aktif</span>
+            <p class="sub-since">Başlangıç: ${new Date(sub.tarih).toLocaleDateString("tr-TR")}</p>
+          </div>
+          <button type="button" id="sub-cancel" class="btn btn-ghost-dark">Aboneliği iptal et</button>
+        </div>
+
+        <h4 class="sub-blok-baslik">🎯 Size Özel Ürün Önerileri</h4>
+        <div class="rate-table-wrap">
+          <table class="rate-table">
+            <thead><tr><th>Ürün</th><th>Önerilen Adet</th><th>Neden?</th></tr></thead>
+            <tbody>${onerilenler}</tbody>
+          </table>
+        </div>
+
+        <h4 class="sub-blok-baslik">🎁 Abonelere Özel Teklifler</h4>
+        <div class="teklif-grid">
+          ${ABONELIK.teklifler.map(t => `
+            <div class="teklif-card">
+              <strong>${t.baslik}</strong>
+              <span>${t.aciklama}</span>
+            </div>`).join("")}
+        </div>
+
+        <div class="sub-danisman">
+          💬 Kişisel danışmanınız hazır — ürün ve adet planınız için
+          <a href="https://wa.me/${ILETISIM.whatsapp}" target="_blank" rel="noopener">WhatsApp'tan yazın</a>.
+        </div>
+      </div>`;
+    $("#sub-cancel").addEventListener("click", () => {
+      if (confirm("Aboneliğinizi iptal etmek istediğinize emin misiniz?")) {
+        localStorage.removeItem(SUB_KEY);
+        renderAbonelik();
+      }
+    });
+  }
+}
+
+function abone(planId) {
+  const plan = ABONELIK.planlar.find(p => p.id === planId);
+  if (!plan) return;
+  const onay = confirm(`${plan.ad} paketine ${fmtPara(plan.fiyatUSD)}/${plan.periyot} karşılığında abone olmak üzeresiniz.\n\n(Demo: gerçek ödeme alınmaz.)\n\nOnaylıyor musunuz?`);
+  if (!onay) return;
+  localStorage.setItem(SUB_KEY, JSON.stringify({ planId, tarih: new Date().toISOString() }));
+  renderAbonelik();
+  $("#abonelik").scrollIntoView({ behavior: "smooth" });
+}
+
+/* ============================================================
    BAŞLATMA
    ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -636,6 +785,9 @@ document.addEventListener("DOMContentLoaded", () => {
   renderProducts();
   renderPartners();
   setupCalculator();
+  setupConverter();
+  renderRateTable();
+  renderAbonelik();
   setupRequestForm();
   setupContact();
   $("#year").textContent = new Date().getFullYear();
