@@ -21,7 +21,8 @@ const $$ = (sel) => document.querySelectorAll(sel);
 function fmtPara(usd, kod = selectedCurrency) {
   const c = KURLAR[kod] || KURLAR.USD;
   const tutar = usd * c.kur;
-  return c.sembol + tutar.toLocaleString("tr-TR", { maximumFractionDigits: 0 });
+  const isaret = tutar < 0 ? "−" : "";
+  return isaret + c.sembol + Math.abs(tutar).toLocaleString("tr-TR", { maximumFractionDigits: 0 });
 }
 const fmtUSD = (n) => fmtPara(n, "USD");
 
@@ -462,22 +463,30 @@ function calculate() {
   const carpan = partner ? partner.fiyatCarpani : 1;
   const gunFark = partner ? partner.gunFark : 0;
 
-  // Ürün indirimi (her zaman geçerli — ürün indirimde)
+  // --- MALİYET HESABI (kalem kalem) ---
   const urunIndirim = product.indirim || 0;
   const birimFiyatEff = product.birimFiyatKgUSD * (1 - urunIndirim);
 
-  const birimToplam = birimFiyatEff * kg;             // indirimli ürün bedeli (USD)
-  const nakliyeToplam = kargo.usdKg * kg;             // nakliye bedeli (USD)
-  const araToplam = birimToplam + nakliyeToplam;
-  let toplamUSD = araToplam * carpan;                 // tedarikçi çarpanı uygulanır
+  const listeBedeli   = product.birimFiyatKgUSD * kg * carpan;   // indirimsiz mal bedeli
+  const urunIndirimTutar = listeBedeli - birimFiyatEff * kg * carpan;
+  const indirimliMal  = birimFiyatEff * kg * carpan;            // ürün indirimi sonrası
 
   // Firma kampanyası (sadece seçili firma + ilgili ürün eşleşince)
-  let kampanyaIndirimTutar = 0;
   const kampanyaAktif = partner && partner.kampanya && partner.kampanya.urun === product.id;
-  if (kampanyaAktif) {
-    kampanyaIndirimTutar = toplamUSD * partner.kampanya.oran;
-    toplamUSD -= kampanyaIndirimTutar;
-  }
+  const kampanyaTutar = kampanyaAktif ? indirimliMal * partner.kampanya.oran : 0;
+  const malBedeli     = indirimliMal - kampanyaTutar;          // net mal bedeli
+
+  const nakliye  = kargo.usdKg * kg;                            // navlun
+  const sigorta  = (malBedeli + nakliye) * VERGI.sigortaOran;  // sigorta
+  const cif      = malBedeli + nakliye + sigorta;              // CIF değeri (vergi matrahı)
+
+  const gumrukOran   = product.gumruk || 0;
+  const gumrukVergisi = cif * gumrukOran;                      // gümrük vergisi
+  const kdvMatrah    = cif + gumrukVergisi;
+  const kdv          = kdvMatrah * VERGI.kdv;                  // KDV
+  const komisyon     = Math.max(VERGI.komisyonMin, cif * VERGI.komisyonOran); // gümrük işlem/komisyon
+
+  const toplamUSD = cif + gumrukVergisi + kdv + komisyon;      // yurda giriş toplam maliyeti
 
   // Teslim süresi (negatife düşmesin)
   const minGun = Math.max(1, kargo.minGun + gunFark);
@@ -488,21 +497,11 @@ function calculate() {
   let partnerSatir;
   if (partner) {
     const onerilenMi = partner.id === product.onerilenFirma ? " ⭐ (önerilen)" : "";
-    partnerSatir = `<span>Tedarikçi: <b>${partner.ad}</b> (${partner.sehir})${onerilenMi}</span>`;
+    partnerSatir = `<div class="bd-note">Tedarikçi: <b>${partner.ad}</b> (${partner.sehir})${onerilenMi}</div>`;
   } else if (onerilen) {
-    partnerSatir = `<span class="warn">Önerilen firma: <b>${onerilen.ad}</b> — seçmek için karta tıklayın (zorunlu değil).</span>`;
+    partnerSatir = `<div class="bd-note warn">Önerilen firma: <b>${onerilen.ad}</b> — seçmek için karta tıklayın (zorunlu değil).</div>`;
   } else {
-    partnerSatir = `<span class="warn">Tedarikçi seçilmedi — standart fiyat gösteriliyor.</span>`;
-  }
-
-  // İndirim satırları
-  let indirimSatirlar = "";
-  if (urunIndirim > 0) {
-    const fark = product.birimFiyatKgUSD * kg - birimToplam;
-    indirimSatirlar += `<span class="save">🏷️ Ürün indirimi (%${Math.round(urunIndirim * 100)}): <b>−${fmtPara(fark)}</b></span>`;
-  }
-  if (kampanyaAktif) {
-    indirimSatirlar += `<span class="save">🔥 ${partner.kampanya.etiket}: <b>−${fmtPara(kampanyaIndirimTutar)}</b></span>`;
+    partnerSatir = `<div class="bd-note warn">Tedarikçi seçilmedi — standart fiyat gösteriliyor.</div>`;
   }
 
   // Seçili firma yokken bu ürün için kampanyalı firma varsa öner
@@ -512,10 +511,28 @@ function calculate() {
     kampanyaIpucu = `<span class="kampanya-ipucu">🔥 <b>${kampanyaliFirma.ad}</b> bu üründe ${kampanyaliFirma.kampanya.etiket.toLowerCase()} sunuyor — o firmayı seçerek daha ucuza alın.</span>`;
   }
 
+  // Maliyet dökümü satırı yardımcısı
+  const row = (etiket, tutar, cls = "") =>
+    `<div class="bd-row ${cls}"><span>${etiket}</span><span>${fmtPara(tutar)}</span></div>`;
+
+  let dokum = "";
+  if (urunIndirim > 0 || kampanyaAktif) dokum += row("Liste bedeli (ürün)", listeBedeli);
+  if (urunIndirim > 0) dokum += row(`🏷️ Ürün indirimi (−%${Math.round(urunIndirim * 100)})`, -urunIndirimTutar, "save");
+  if (kampanyaAktif)   dokum += row(`🔥 ${partner.kampanya.etiket}`, -kampanyaTutar, "save");
+  dokum += row("Mal bedeli", malBedeli);
+  dokum += row(`Nakliye (${kargo.ad})`, nakliye);
+  dokum += row(`Sigorta (%${(VERGI.sigortaOran * 100).toLocaleString("tr-TR")})`, sigorta);
+  dokum += row("Ara toplam (CIF / vergi matrahı)", cif, "subtotal");
+  dokum += row(`Gümrük vergisi (%${(gumrukOran * 100).toLocaleString("tr-TR")})`, gumrukVergisi);
+  dokum += row(`KDV (%${Math.round(VERGI.kdv * 100)})`, kdv);
+  dokum += row("Gümrük işlem / komisyon", komisyon);
+  dokum += row("TOPLAM (yurda giriş maliyeti)", toplamUSD, "total");
+
   // İkincil para birimi referansı (seçili USD değilse USD'yi de göster)
   const altSatir = selectedCurrency === "USD"
     ? `≈ ${fmtPara(toplamUSD, "TRY")}`
     : `≈ ${fmtPara(toplamUSD, "USD")}`;
+  const birimMaliyet = toplamUSD / kg;   // kg başına gerçek maliyet
 
   const agirlikMetni = selectedUnit === "ton"
     ? `${miktar.toLocaleString("tr-TR")} ton (${kg.toLocaleString("tr-TR")} kg)`
@@ -532,9 +549,9 @@ function calculate() {
     </div>
     <div class="result-grid">
       <div class="result-cell big">
-        <span class="cell-label">Tahmini Toplam Maliyet</span>
+        <span class="cell-label">Tahmini Toplam Maliyet (vergiler dâhil)</span>
         <span class="cell-value">${fmtPara(toplamUSD)}</span>
-        <span class="cell-sub">${altSatir}</span>
+        <span class="cell-sub">${altSatir} · ${fmtPara(birimMaliyet)}/kg</span>
       </div>
       <div class="result-cell">
         <span class="cell-label">Tahmini Teslim Süresi</span>
@@ -542,13 +559,12 @@ function calculate() {
         <span class="cell-sub">${kargo.ad}</span>
       </div>
     </div>
-    <div class="result-breakdown">
-      <span>Ürün bedeli: <b>${fmtPara(birimToplam)}</b></span>
-      <span>Nakliye: <b>${fmtPara(nakliyeToplam)}</b></span>
-      ${indirimSatirlar}
-      ${partnerSatir}
-    </div>
+    <div class="bd-title">Maliyet Dökümü</div>
+    <div class="breakdown-list">${dokum}</div>
+    ${partnerSatir}
     ${kampanyaIpucu}
+    <p class="disclaimer-sm">ℹ️ Vergi ve gümrük oranları örnek/tahminîdir; gerçek oranlar ürünün GTIP'ine,
+      menşe ve güncel mevzuata göre değişir.</p>
   `;
 }
 

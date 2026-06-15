@@ -88,22 +88,32 @@ const PARTNERS = [
     aciklama: "Kauçuk hammadde, endüstriyel kimyasal ve kereste; liman avantajıyla deneyimli.", fiyatCarpani: 1.01, gunFark: 1 }
 ];
 
+/* Vergi & ek masraf oranları (ithalat maliyeti dökümü için).
+   İstediğiniz zaman güncelleyin. */
+const VERGI = {
+  kdv: 0.20,            // KDV oranı (CIF + gümrük vergisi üzerinden)
+  sigortaOran: 0.005,   // sigorta (mal + nakliye üzerinden, %0.5)
+  komisyonOran: 0.01,   // gümrük işlem/komisyon (CIF üzerinden, %1)
+  komisyonMin: 40       // minimum komisyon (USD)
+};
+
 /* Aktif ticaretini yaptığımız hammadde / dökme ürünler — kilo ve ton ile satılır.
    birimFiyatKgUSD = ürünün kilogram başına tahmini birim fiyatı (USD)
+   gumruk          = ürünün tahmini gümrük vergisi oranı (CIF üzerinden)
    gorsel          = özel SVG illüstrasyon anahtarı (app.js içinde çizilir)
    onerilenFirma   = bu ürün için önerilen Çinli tedarikçi (PARTNERS id) */
 const PRODUCTS = [
-  { id: "demir",      ad: "Demir / Çelik Profil",    kategori: "Metal",      ikon: "🏗️", birimFiyatKgUSD: 0.9, gorsel: "demir",     onerilenFirma: "tangsteel" },
-  { id: "tel",        ad: "Çelik Tel (Bobin)",       kategori: "Metal",      ikon: "🔗", birimFiyatKgUSD: 1.2,  gorsel: "tel",       onerilenFirma: "tangsteel" },
-  { id: "paslanmaz",  ad: "Paslanmaz Çelik Sac",     kategori: "Metal",      ikon: "🪞", birimFiyatKgUSD: 3.2,  gorsel: "paslanmaz", onerilenFirma: "tangsteel" },
-  { id: "aluminyum",  ad: "Alüminyum Külçe/Profil",  kategori: "Metal",      ikon: "🥫", birimFiyatKgUSD: 2.6,  gorsel: "aluminyum", onerilenFirma: "ningbometal" },
-  { id: "bakir",      ad: "Bakır (Tel/Bobin)",       kategori: "Metal",      ikon: "🟤", birimFiyatKgUSD: 9.2,  gorsel: "bakir",     onerilenFirma: "ningbometal" },
-  { id: "plastik",    ad: "Plastik Hammadde (Granül)",kategori: "Polimer",   ikon: "♻️", birimFiyatKgUSD: 1.5,  gorsel: "plastik",   onerilenFirma: "foshanplas", indirim: 0.15 },
-  { id: "pvc",        ad: "PVC Boru / Profil",       kategori: "Polimer",    ikon: "🚰", birimFiyatKgUSD: 1.3,  gorsel: "pvc",       onerilenFirma: "foshanplas" },
-  { id: "kaucuk",     ad: "Kauçuk Hammadde",         kategori: "Polimer",    ikon: "🛞", birimFiyatKgUSD: 1.9,  gorsel: "kaucuk",    onerilenFirma: "qingchem" },
-  { id: "kumas",      ad: "Tekstil Kumaş (Top)",     kategori: "Tekstil",    ikon: "🧵", birimFiyatKgUSD: 6.0,  gorsel: "kumas",     onerilenFirma: "shaoxtex", indirim: 0.10 },
-  { id: "iplik",      ad: "Polyester İplik",         kategori: "Tekstil",    ikon: "🧶", birimFiyatKgUSD: 4.0,  gorsel: "iplik",     onerilenFirma: "shaoxtex" },
-  { id: "eldiven",    ad: "File Eldiveni",           kategori: "Tekstil",    ikon: "🧤", birimFiyatKgUSD: 5.0,  gorsel: "eldiven",   onerilenFirma: "shaoxtex" },
-  { id: "kimyasal",   ad: "Endüstriyel Kimyasal",    kategori: "Kimya",      ikon: "🧪", birimFiyatKgUSD: 2.2,  gorsel: "kimyasal",  onerilenFirma: "qingchem" },
-  { id: "ahsap",      ad: "Ahşap / Kereste",         kategori: "İnşaat",     ikon: "🪵", birimFiyatKgUSD: 0.7,  gorsel: "ahsap",     onerilenFirma: "qingchem" }
+  { id: "demir",      ad: "Demir / Çelik Profil",    kategori: "Metal",      ikon: "🏗️", birimFiyatKgUSD: 0.9, gumruk: 0.02, gorsel: "demir",     onerilenFirma: "tangsteel" },
+  { id: "tel",        ad: "Çelik Tel (Bobin)",       kategori: "Metal",      ikon: "🔗", birimFiyatKgUSD: 1.2,  gumruk: 0.02, gorsel: "tel",       onerilenFirma: "tangsteel" },
+  { id: "paslanmaz",  ad: "Paslanmaz Çelik Sac",     kategori: "Metal",      ikon: "🪞", birimFiyatKgUSD: 3.2,  gumruk: 0.03, gorsel: "paslanmaz", onerilenFirma: "tangsteel" },
+  { id: "aluminyum",  ad: "Alüminyum Külçe/Profil",  kategori: "Metal",      ikon: "🥫", birimFiyatKgUSD: 2.6,  gumruk: 0.04, gorsel: "aluminyum", onerilenFirma: "ningbometal" },
+  { id: "bakir",      ad: "Bakır (Tel/Bobin)",       kategori: "Metal",      ikon: "🟤", birimFiyatKgUSD: 9.2,  gumruk: 0.03, gorsel: "bakir",     onerilenFirma: "ningbometal" },
+  { id: "plastik",    ad: "Plastik Hammadde (Granül)",kategori: "Polimer",   ikon: "♻️", birimFiyatKgUSD: 1.5,  gumruk: 0.065, gorsel: "plastik",  onerilenFirma: "foshanplas", indirim: 0.15 },
+  { id: "pvc",        ad: "PVC Boru / Profil",       kategori: "Polimer",    ikon: "🚰", birimFiyatKgUSD: 1.3,  gumruk: 0.065, gorsel: "pvc",      onerilenFirma: "foshanplas" },
+  { id: "kaucuk",     ad: "Kauçuk Hammadde",         kategori: "Polimer",    ikon: "🛞", birimFiyatKgUSD: 1.9,  gumruk: 0.05, gorsel: "kaucuk",    onerilenFirma: "qingchem" },
+  { id: "kumas",      ad: "Tekstil Kumaş (Top)",     kategori: "Tekstil",    ikon: "🧵", birimFiyatKgUSD: 6.0,  gumruk: 0.08, gorsel: "kumas",     onerilenFirma: "shaoxtex", indirim: 0.10 },
+  { id: "iplik",      ad: "Polyester İplik",         kategori: "Tekstil",    ikon: "🧶", birimFiyatKgUSD: 4.0,  gumruk: 0.06, gorsel: "iplik",     onerilenFirma: "shaoxtex" },
+  { id: "eldiven",    ad: "File Eldiveni",           kategori: "Tekstil",    ikon: "🧤", birimFiyatKgUSD: 5.0,  gumruk: 0.08, gorsel: "eldiven",   onerilenFirma: "shaoxtex" },
+  { id: "kimyasal",   ad: "Endüstriyel Kimyasal",    kategori: "Kimya",      ikon: "🧪", birimFiyatKgUSD: 2.2,  gumruk: 0.055, gorsel: "kimyasal", onerilenFirma: "qingchem" },
+  { id: "ahsap",      ad: "Ahşap / Kereste",         kategori: "İnşaat",     ikon: "🪵", birimFiyatKgUSD: 0.7,  gumruk: 0.0,  gorsel: "ahsap",     onerilenFirma: "qingchem" }
 ];

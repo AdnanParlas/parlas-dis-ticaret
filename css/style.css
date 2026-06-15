@@ -401,6 +401,31 @@ a { color: inherit; text-decoration: none; }
 .result-breakdown b { color: var(--text); }
 .result-breakdown .warn { color: var(--red-dark); font-weight: 600; }
 
+/* Maliyet dökümü (kalem kalem) */
+.bd-title { margin-top: 18px; font-size: 15px; font-weight: 800; color: var(--navy); }
+.breakdown-list {
+  margin-top: 8px; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; padding: 6px 14px; box-shadow: var(--shadow-sm);
+}
+.bd-row {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 9px 0; font-size: 14.5px; color: var(--text);
+  border-bottom: 1px dashed var(--line);
+}
+.bd-row:last-child { border-bottom: none; }
+.bd-row span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bd-row.save { color: var(--ok); }
+.bd-row.save span:last-child { color: var(--ok); }
+.bd-row.subtotal { font-weight: 700; color: var(--navy-2); border-top: 1px solid var(--line); }
+.bd-row.total {
+  margin-top: 2px; font-size: 17px; font-weight: 800; color: var(--navy);
+  border-top: 2px solid var(--navy); border-bottom: none;
+}
+.bd-row.total span:last-child { color: var(--red); }
+.bd-note { margin-top: 12px; font-size: 13.5px; color: var(--muted); }
+.bd-note.warn { color: var(--red-dark); font-weight: 600; }
+.disclaimer-sm { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
 .disclaimer { margin-top: 14px; font-size: 12.5px; color: var(--muted); }
 
 /* ============================================================
