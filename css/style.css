@@ -20,8 +20,9 @@
   --radius:    16px;
   --shadow:    0 16px 42px rgba(40,18,110,.16);
   --shadow-sm: 0 5px 16px rgba(40,18,110,.10);
-  --grad-hero: linear-gradient(135deg, #2a0e6b 0%, #6d28d9 32%, #db2777 66%, #ff7a45 105%);
+  --grad-hero: linear-gradient(135deg, #0ea5e9 0%, #6366f1 30%, #a855f7 62%, #ec4899 100%);
   --grad-accent: linear-gradient(135deg, #ff4d6d, #ff8a3d 55%, #ffb703);
+  --grad-bar:  linear-gradient(90deg, #4f46e5 0%, #7c3aed 45%, #db2777 100%);
   --grad-cyan: linear-gradient(135deg, #06b6d4, #6d28d9);
 }
 
@@ -39,7 +40,11 @@
 body {
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
   color: var(--text);
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(99,102,241,.10), transparent 38%),
+    radial-gradient(circle at 100% 8%, rgba(236,72,153,.10), transparent 38%),
+    linear-gradient(180deg, #f5f2fd 0%, #eef6fc 100%);
+  background-attachment: fixed;
   line-height: 1.5;
 }
 
@@ -108,8 +113,8 @@ a { color: inherit; text-decoration: none; }
 }
 /* yüzen renkli ışıltılar */
 .auth-blob {
-  position: absolute; border-radius: 50%; filter: blur(46px); opacity: .55; z-index: 0;
-  pointer-events: none;
+  position: absolute; border-radius: 50%; filter: blur(44px); opacity: .65; z-index: 0;
+  pointer-events: none; mix-blend-mode: screen;
 }
 .auth-blob.b1 { width: 300px; height: 300px; background: #ff4d6d; top: -60px; left: -40px; animation: blobFloat 11s ease-in-out infinite; }
 .auth-blob.b2 { width: 260px; height: 260px; background: #06b6d4; bottom: -50px; right: -30px; animation: blobFloat2 13s ease-in-out infinite; }
@@ -121,10 +126,11 @@ a { color: inherit; text-decoration: none; }
   width: 100%; max-width: 480px; color: #fff;
 }
 .auth-intro .brand { margin-bottom: 24px; }
-.auth-intro .brand-name { color: #fff; }
-.auth-intro .brand-tag { color: #e3dcff; }
-.auth-about h2 { font-size: 26px; margin-bottom: 10px; }
-.auth-about p { color: #e6e1ff; font-size: 15.5px; line-height: 1.6; }
+.auth-intro .brand-name { color: #fff; font-size: 30px; text-shadow: 0 3px 14px rgba(0,0,0,.25); }
+.auth-intro .brand-logo { font-size: 44px; animation: floatY 4s ease-in-out infinite; }
+.auth-intro .brand-tag { color: #f0ecff; }
+.auth-about h2 { font-size: 32px; margin-bottom: 10px; font-weight: 800; text-shadow: 0 3px 14px rgba(0,0,0,.22); }
+.auth-about p { color: #f0ecff; font-size: 15.5px; line-height: 1.6; }
 .auth-stats {
   display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 10px; margin: 22px 0;
@@ -210,7 +216,11 @@ a { color: inherit; text-decoration: none; }
 /* ============================================================
    ÜST BAR
    ============================================================ */
-.topbar { background: var(--navy); position: sticky; top: 0; z-index: 20; box-shadow: var(--shadow-sm); }
+.topbar {
+  background: var(--grad-bar); background-size: 180% 180%;
+  animation: gradShift 16s ease infinite;
+  position: sticky; top: 0; z-index: 20; box-shadow: 0 6px 22px rgba(76,29,149,.35);
+}
 .topbar-inner {
   max-width: 1100px; margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
@@ -236,9 +246,16 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-inner { position: relative; z-index: 1; animation: fadeUp .7s ease both; }
 .hero h2 { text-shadow: 0 4px 18px rgba(0,0,0,.18); }
-.hero-inner { max-width: 760px; margin: 0 auto; text-align: center; }
-.hero h2 { font-size: 32px; line-height: 1.25; margin-bottom: 14px; }
-.hero p { color: #d3dcec; font-size: 17px; margin-bottom: 26px; }
+.hero-inner { max-width: 780px; margin: 0 auto; text-align: center; }
+.hero-inner::before {
+  content: "🇨🇳 Çin ↔ 🇹🇷 Türkiye · 15+ yıl"; display: inline-block;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
+  color: #fff; font-size: 13.5px; font-weight: 700;
+  padding: 7px 16px; border-radius: 30px; margin-bottom: 18px;
+}
+.hero h2 { font-size: 38px; line-height: 1.2; margin-bottom: 14px; font-weight: 800; letter-spacing: -.3px; }
+.hero p { color: #eef1ff; font-size: 17.5px; margin-bottom: 28px; }
+@media (max-width: 640px) { .hero h2 { font-size: 27px; } }
 
 /* ============================================================
    GENEL DÜZEN
@@ -315,7 +332,7 @@ a { color: inherit; text-decoration: none; }
   transition: border .15s ease, transform .08s ease, box-shadow .15s ease;
 }
 .partner-card:hover { border-color: var(--navy-2); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-.partner-card.selected { border-color: var(--accent); background: #ecfdff; }
+.partner-card.selected { border-color: var(--accent); background: #ecfdff; box-shadow: 0 0 0 4px rgba(6,182,212,.18), var(--shadow-sm); transform: translateY(-2px); }
 .partner-flag { font-size: 22px; }
 .partner-name { font-weight: 700; font-size: 14.5px; color: var(--navy); }
 .partner-city { font-size: 12.5px; color: var(--muted); }
@@ -362,7 +379,7 @@ a { color: inherit; text-decoration: none; }
   transition: border .15s ease, transform .08s ease, box-shadow .15s ease;
 }
 .product-card:hover { border-color: var(--navy-2); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-.product-card.selected { border-color: var(--red); background: #fff5f6; }
+.product-card.selected { border-color: var(--red); background: #fff5f8; box-shadow: 0 0 0 4px rgba(255,77,109,.18), var(--shadow-sm); transform: translateY(-2px); }
 .product-media {
   position: relative; height: 120px; width: 100%;
   background: linear-gradient(135deg, #eceaf7, #f6f2fb);
@@ -451,6 +468,11 @@ a { color: inherit; text-decoration: none; }
 .result-cell.big { border-left: 4px solid var(--red); }
 .cell-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
 .cell-value { display: block; font-size: 26px; font-weight: 800; color: var(--navy); }
+.result-cell.big .cell-value {
+  font-size: 30px;
+  background: var(--grad-accent); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: var(--red);
+}
 .cell-sub { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
 
 .result-breakdown {
