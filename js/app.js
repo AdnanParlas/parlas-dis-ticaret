@@ -126,112 +126,136 @@ function renderAboutAndReviews() {
    (internet gerektirmez, her zaman alakalı ve net)
    ============================================================ */
 function urunGorseli(key) {
-  const svg = (bg, inner) =>
-    `<svg class="product-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-       <rect width="400" height="300" fill="${bg}"/>${inner}</svg>`;
+  const id = "g_" + key;   // bu kartın gradient id öneki (çakışmayı önler)
 
-  // Bobin/coil yardımcı (iç içe elipsler)
-  const coil = (cx, cy, col, dark) => {
+  // dikey degrade tanımı
+  const grad = (sfx, c1, c2) =>
+    `<linearGradient id="${id}${sfx}" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`;
+  const gradH = (sfx, c1, c2) =>
+    `<linearGradient id="${id}${sfx}" x1="0" y1="0" x2="1" y2="0">
+       <stop offset="0" stop-color="${c1}"/><stop offset="0.5" stop-color="${c2}"/><stop offset="1" stop-color="${c1}"/></linearGradient>`;
+  const u = (sfx) => `url(#${id}${sfx})`;
+
+  // çerçeve: degrade arka plan + yumuşak zemin gölgesi
+  const frame = (bgTop, bgBot, defs, inner) =>
+    `<svg class="product-svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+       <defs>${grad("bg", bgTop, bgBot)}${defs || ""}</defs>
+       <rect width="400" height="300" fill="${u("bg")}"/>
+       <ellipse cx="200" cy="250" rx="155" ry="24" fill="#1a2233" opacity="0.08"/>
+       ${inner}</svg>`;
+
+  // metalik bobin (yatay degrade halkalar + parlama)
+  const coil = (cx, cy, gsfx) => {
     let r = "";
     for (let i = 0; i < 5; i++)
-      r += `<ellipse cx="${cx}" cy="${cy}" rx="${70 - i * 13}" ry="${78 - i * 14}" fill="none" stroke="${i % 2 ? dark : col}" stroke-width="9"/>`;
+      r += `<ellipse cx="${cx}" cy="${cy}" rx="${72 - i * 13}" ry="${80 - i * 14}" fill="none" stroke="${u(gsfx)}" stroke-width="10"/>`;
+    r += `<ellipse cx="${cx - 26}" cy="${cy - 30}" rx="10" ry="26" fill="#ffffff" opacity="0.35" transform="rotate(-20 ${cx} ${cy})"/>`;
     return r;
   };
 
   switch (key) {
-    case "demir": // I-profil / çelik kiriş istifi
-      return svg("#e7ecf2", `
-        <g stroke="#5e6675" stroke-width="3">
-          ${[0, 1, 2].map(i => `
-            <g fill="#9aa3b1" transform="translate(${110 + i * 90},${110 + i * 14})">
-              <rect x="-58" y="-10" width="116" height="18" rx="2"/>
-              <rect x="-12" y="-10" width="24" height="96" rx="2"/>
-              <rect x="-58" y="78" width="116" height="18" rx="2"/>
+    case "demir": // çelik I-profil istifi
+      return frame("#eef2f7", "#d8dee7", grad("m", "#b9c1cd", "#7d8694") + grad("s", "#dde3ea", "#aab3c0"),
+        `<g stroke="#5e6675" stroke-width="2.5">
+          ${[0,1,2].map(i => `
+            <g transform="translate(${112 + i * 88},${112 + i * 14})">
+              <rect x="-58" y="-10" width="116" height="18" rx="2" fill="${u("s")}"/>
+              <rect x="-12" y="-10" width="24" height="96" rx="2" fill="${u("m")}"/>
+              <rect x="-58" y="78" width="116" height="18" rx="2" fill="${u("m")}"/>
+              <rect x="-58" y="-10" width="116" height="5" fill="#ffffff" opacity="0.45"/>
             </g>`).join("")}
         </g>`);
 
     case "tel": // çelik tel bobini
-      return svg("#e9edf2", `${coil(200, 150, "#aeb6c2", "#717b8a")}
-        <path d="M262 120 q40 -10 55 20" fill="none" stroke="#717b8a" stroke-width="7"/>`);
+      return frame("#eef2f7", "#d9dfe7", gradH("m", "#8a93a2", "#d3d9e1"),
+        `${coil(200, 150, "m")}
+         <path d="M268 122 q42 -12 58 18" fill="none" stroke="#8a93a2" stroke-width="8"/>`);
 
-    case "paslanmaz": // parlak sac levha istifi
-      return svg("#eaeef3", `
-        <g stroke="#9aa6b4" stroke-width="2.5">
-          ${[0, 1, 2, 3].map(i => `
-            <polygon points="70,${150 + i * 26} 250,${110 + i * 26} 330,${150 + i * 26} 150,${190 + i * 26}"
-              fill="${i % 2 ? '#cdd6e0' : '#dde4ec'}"/>`).join("")}
+    case "paslanmaz": // parlak paslanmaz sac istifi
+      return frame("#eef2f7", "#dadfe7", grad("a", "#e8edf3", "#c2cad6") + grad("b", "#d2dae4", "#aab4c1"),
+        `<g stroke="#9aa6b4" stroke-width="2">
+          ${[0,1,2,3].map(i => `
+            <polygon points="70,${150 + i*26} 250,${110 + i*26} 330,${150 + i*26} 150,${190 + i*26}"
+              fill="${i % 2 ? u("b") : u("a")}"/>`).join("")}
         </g>
-        <polygon points="250,110 330,150 330,158 250,118" fill="#aab4c1"/>`);
+        <polygon points="150,190 250,150 250,158 150,198" fill="#ffffff" opacity="0.35"/>`);
 
     case "aluminyum": // alüminyum külçe istifi
-      return svg("#edf1f5", `
-        <g stroke="#9aa6b4" stroke-width="2.5">
-          ${[[140, 175], [215, 175], [177, 120]].map(([x, y]) => `
+      return frame("#eef2f7", "#dadfe7", grad("t", "#e3e8ee", "#c4ccd7") + grad("l", "#aab4c1", "#8f99a8") + grad("r", "#cdd6e0", "#aeb8c5"),
+        `<g stroke="#8f99a8" stroke-width="2">
+          ${[[140,178],[214,178],[177,124]].map(([x,y]) => `
             <g transform="translate(${x},${y})">
-              <polygon points="-55,18 55,18 42,-18 -42,-18" fill="#cdd6e0"/>
-              <polygon points="-55,18 -42,-18 -42,2 -55,38" fill="#aab4c1"/>
-              <polygon points="55,18 42,-18 42,2 55,38" fill="#bcc6d2"/>
+              <polygon points="-55,18 55,18 42,-18 -42,-18" fill="${u("t")}"/>
+              <polygon points="-55,18 -42,-18 -42,2 -55,38" fill="${u("l")}"/>
+              <polygon points="55,18 42,-18 42,2 55,38" fill="${u("r")}"/>
             </g>`).join("")}
         </g>`);
 
     case "bakir": // bakır bobin
-      return svg("#f4e7df", `${coil(200, 150, "#cf8a5f", "#9c5a34")}
-        <path d="M262 120 q40 -10 55 20" fill="none" stroke="#9c5a34" stroke-width="7"/>`);
+      return frame("#f6ece4", "#ecd9cb", gradH("m", "#9c5a34", "#e8a877"),
+        `${coil(200, 150, "m")}
+         <path d="M268 122 q42 -12 58 18" fill="none" stroke="#9c5a34" stroke-width="8"/>`);
 
-    case "plastik": { // plastik granül yığını
+    case "plastik": { // parlak plastik granül yığını
       const cols = ["#3bb2d0", "#f4b41a", "#e6584c", "#5cc28e", "#7a6ff0", "#ef8f3c"];
-      let pel = "";
-      const pts = [[160,210],[185,222],[210,212],[235,224],[150,232],[178,242],[205,236],[232,244],[258,232],[140,250],[168,258],[196,254],[224,260],[252,254],[278,250],[190,200],[222,202]];
-      pts.forEach((p, i) => pel += `<ellipse cx="${p[0]}" cy="${p[1]}" rx="13" ry="10" fill="${cols[i % cols.length]}"/>`);
-      return svg("#e6f4f1", `<rect x="120" y="120" width="160" height="60" rx="8" fill="#ffffff" opacity=".5"/>${pel}`);
+      const pts = [[160,212],[185,224],[210,214],[235,226],[150,234],[178,244],[205,238],[232,246],[258,234],[140,252],[168,260],[196,256],[224,262],[252,256],[278,252],[190,202],[222,204]];
+      const pel = pts.map((p,i) =>
+        `<ellipse cx="${p[0]}" cy="${p[1]}" rx="13" ry="10" fill="${cols[i % cols.length]}"/>
+         <ellipse cx="${p[0]-4}" cy="${p[1]-3}" rx="4" ry="3" fill="#ffffff" opacity="0.55"/>`).join("");
+      return frame("#e9f6f2", "#d3ece4", "",
+        `<path d="M120 200 q80 -34 160 0 l-8 56 q-72 22 -144 0 z" fill="#ffffff" opacity="0.45"/>${pel}`);
     }
 
     case "pvc": // PVC boru demeti
-      return svg("#eef1f4", `
-        <g>
-          ${[[150,170],[200,170],[250,170],[175,128],[225,128],[200,212]].map(([x, y]) => `
+      return frame("#eef2f6", "#dde3ea", grad("p", "#f4f7fa", "#c4cdd8"),
+        `<g>
+          ${[[150,172],[200,172],[250,172],[175,130],[225,130],[200,214]].map(([x,y]) => `
             <g transform="translate(${x},${y})">
-              <rect x="-24" y="0" width="48" height="70" fill="#dfe5ec"/>
-              <ellipse cx="0" cy="0" rx="24" ry="11" fill="#f3f6f9" stroke="#b9c3cf" stroke-width="2.5"/>
+              <rect x="-24" y="0" width="48" height="68" fill="${u("p")}"/>
+              <ellipse cx="0" cy="0" rx="24" ry="11" fill="#f5f8fb" stroke="#b9c3cf" stroke-width="2.5"/>
               <ellipse cx="0" cy="0" rx="12" ry="5.5" fill="#cdd6e0"/>
-              <ellipse cx="0" cy="70" rx="24" ry="11" fill="#cdd6e0"/>
+              <ellipse cx="0" cy="68" rx="24" ry="11" fill="#cdd6e0"/>
             </g>`).join("")}
         </g>`);
 
     case "kaucuk": // lastik / kauçuk
-      return svg("#eceff2", `
-        <ellipse cx="200" cy="155" rx="92" ry="92" fill="#2c2f36"/>
-        <ellipse cx="200" cy="155" rx="62" ry="62" fill="#4a4e57"/>
-        <ellipse cx="200" cy="155" rx="40" ry="40" fill="#d7dde4"/>
-        <g stroke="#1d2025" stroke-width="6">
-          ${Array.from({length: 12}).map((_, i) => {
-            const a = (i / 12) * Math.PI * 2;
-            return `<line x1="${200 + Math.cos(a) * 64}" y1="${155 + Math.sin(a) * 64}" x2="${200 + Math.cos(a) * 90}" y2="${155 + Math.sin(a) * 90}"/>`;
+      return frame("#eef1f5", "#dde2e9", grad("t", "#3a3e46", "#222529"),
+        `<ellipse cx="200" cy="155" rx="94" ry="94" fill="${u("t")}"/>
+         <ellipse cx="200" cy="155" rx="62" ry="62" fill="#4a4e57"/>
+         <ellipse cx="200" cy="155" rx="40" ry="40" fill="#e3e8ee"/>
+         <ellipse cx="200" cy="155" rx="40" ry="40" fill="none" stroke="#aab4c1" stroke-width="4"/>
+         <g stroke="#1d2025" stroke-width="7" stroke-linecap="round">
+          ${Array.from({length:14}).map((_,i) => {
+            const a = (i/14) * Math.PI * 2;
+            return `<line x1="${200+Math.cos(a)*64}" y1="${155+Math.sin(a)*64}" x2="${200+Math.cos(a)*92}" y2="${155+Math.sin(a)*92}"/>`;
           }).join("")}
-        </g>`);
+         </g>
+         <path d="M150 110 a92 92 0 0 1 70 -22" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.18"/>`);
 
     case "kumas": { // kumaş topları
-      const cols = ["#e6584c", "#3bb2d0", "#f4b41a"];
-      return svg("#f3eaf4", `
-        <g stroke="#00000022" stroke-width="2">
+      const cols = [["#ef6a5e","#d63f33"], ["#46bcd8","#2e96b2"], ["#f6c032","#e09a0e"]];
+      return frame("#f5edf6", "#e7d8ea", cols.map((c,i) => grad("c"+i, c[0], c[1])).join(""),
+        `<g stroke="#00000022" stroke-width="2">
           ${[0,1,2].map(i => `
-            <g transform="translate(${120 + i * 80},120)">
-              <rect x="-30" y="0" width="60" height="120" rx="6" fill="${cols[i]}"/>
-              <ellipse cx="0" cy="0" rx="30" ry="13" fill="${cols[i]}" stroke="#00000033"/>
-              <path d="M-22 0 a22 9 0 0 0 44 0" fill="none" stroke="#ffffff66" stroke-width="3"/>
+            <g transform="translate(${120 + i*80},118)">
+              <rect x="-30" y="0" width="60" height="122" rx="6" fill="${u("c"+i)}"/>
+              <ellipse cx="0" cy="0" rx="30" ry="13" fill="${cols[i][0]}" stroke="#00000033"/>
+              <path d="M-22 2 a22 9 0 0 0 44 0" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.55"/>
+              <rect x="-30" y="6" width="8" height="116" fill="#ffffff" opacity="0.18"/>
             </g>`).join("")}
         </g>`);
     }
 
     case "iplik": { // iplik makaraları
-      const cols = ["#7a6ff0", "#5cc28e", "#ef8f3c"];
-      return svg("#f1ecf6", `
-        ${[0,1,2].map(i => `
-          <g transform="translate(${125 + i * 75},150)">
+      const c2 = [["#8a7ff5","#5f54d6"], ["#67cf9b","#3fae74"], ["#f59a4a","#e07a2a"]];
+      return frame("#f1ecf7", "#e2d9ef", c2.map((c,i) => grad("y"+i, c[0], c[1])).join(""),
+        `${[0,1,2].map(i => `
+          <g transform="translate(${125 + i*75},150)">
             <rect x="-8" y="-70" width="16" height="140" fill="#c9b48f"/>
-            <rect x="-28" y="-58" width="56" height="116" rx="6" fill="${cols[i]}"/>
-            <g stroke="#ffffff55" stroke-width="2.5">
-              ${[-44,-30,-16,-2,12,26,40].map(y => `<line x1="-28" y1="${y}" x2="28" y2="${y + 8}"/>`).join("")}
+            <rect x="-28" y="-58" width="56" height="116" rx="6" fill="${u("y"+i)}"/>
+            <g stroke="#ffffff" stroke-width="2.5" opacity="0.4">
+              ${[-44,-30,-16,-2,12,26,40].map(y => `<line x1="-28" y1="${y}" x2="28" y2="${y+8}"/>`).join("")}
             </g>
             <ellipse cx="0" cy="-70" rx="22" ry="7" fill="#d7c39c"/>
             <ellipse cx="0" cy="70" rx="22" ry="7" fill="#b89e74"/>
@@ -239,32 +263,34 @@ function urunGorseli(key) {
     }
 
     case "kimyasal": { // kimyasal variller
-      const cols = ["#2f6fb0", "#2f9e7a", "#b07a2f"];
-      return svg("#e7eef7", `
-        ${[0,1,2].map(i => `
-          <g transform="translate(${120 + i * 80},115)">
-            <rect x="-32" y="0" width="64" height="130" rx="8" fill="${cols[i]}"/>
-            <ellipse cx="0" cy="0" rx="32" ry="12" fill="${cols[i]}" stroke="#ffffff55" stroke-width="2"/>
-            <rect x="-32" y="34" width="64" height="9" fill="#ffffff44"/>
-            <rect x="-32" y="90" width="64" height="9" fill="#ffffff44"/>
+      const cols = [["#3f86c9","#235e97"], ["#3fb693","#22785f"], ["#c79140","#8f6a2a"]];
+      return frame("#e8eff8", "#d6e1ef", cols.map((c,i) => grad("d"+i, c[0], c[1])).join(""),
+        `${[0,1,2].map(i => `
+          <g transform="translate(${120 + i*80},113)">
+            <rect x="-32" y="0" width="64" height="132" rx="9" fill="${u("d"+i)}"/>
+            <ellipse cx="0" cy="0" rx="32" ry="12" fill="${cols[i][0]}" stroke="#ffffff66" stroke-width="2"/>
+            <rect x="-32" y="36" width="64" height="9" fill="#ffffff55"/>
+            <rect x="-32" y="92" width="64" height="9" fill="#ffffff55"/>
+            <rect x="-26" y="6" width="9" height="122" fill="#ffffff" opacity="0.22"/>
             <rect x="-14" y="-6" width="28" height="8" rx="3" fill="#00000033"/>
           </g>`).join("")}`);
     }
 
     case "ahsap": // kereste istifi
-      return svg("#f1e9df", `
-        <g stroke="#8a5a32" stroke-width="2.5">
+      return frame("#f3ece1", "#e6d8c4", grad("w1", "#c79262", "#a9713f") + grad("w2", "#b9824f", "#9a6336"),
+        `<g stroke="#8a5a32" stroke-width="2.5">
           ${[0,1,2,3].map(i => `
-            <g transform="translate(110,${120 + i * 34})">
-              <rect x="0" y="0" width="180" height="28" rx="3" fill="${i % 2 ? '#c08a52' : '#b07d46'}"/>
-              <ellipse cx="0" cy="14" rx="9" ry="14" fill="#d8b483"/>
-              <ellipse cx="0" cy="14" rx="4" ry="7" fill="#b88a55"/>
-              <ellipse cx="180" cy="14" rx="9" ry="14" fill="#d8b483"/>
+            <g transform="translate(110,${120 + i*34})">
+              <rect x="0" y="0" width="180" height="28" rx="3" fill="${i % 2 ? u("w1") : u("w2")}"/>
+              <ellipse cx="0" cy="14" rx="9" ry="14" fill="#dcb98a"/>
+              <ellipse cx="0" cy="14" rx="5.5" ry="9" fill="#c79a68"/>
+              <ellipse cx="0" cy="14" rx="2.5" ry="4" fill="#b0814f"/>
+              <ellipse cx="180" cy="14" rx="9" ry="14" fill="#dcb98a"/>
             </g>`).join("")}
         </g>`);
 
     default:
-      return svg("#e7ecf2", `<text x="200" y="170" font-size="90" text-anchor="middle">📦</text>`);
+      return frame("#eef2f7", "#dadfe7", "", `<text x="200" y="175" font-size="90" text-anchor="middle">📦</text>`);
   }
 }
 
@@ -273,16 +299,26 @@ function urunGorseli(key) {
    ============================================================ */
 function renderProducts() {
   const grid = $("#product-grid");
-  grid.innerHTML = PRODUCTS.map(p => `
-    <button type="button" class="product-card" data-id="${p.id}">
-      <span class="product-media">${urunGorseli(p.gorsel)}</span>
+  grid.innerHTML = PRODUCTS.map(p => {
+    const ind = p.indirim || 0;
+    const indFiyat = p.birimFiyatKgUSD * (1 - ind);
+    const fiyatHTML = ind
+      ? `<span class="product-price">
+           <span class="price-old">$${p.birimFiyatKgUSD.toFixed(2)}</span>
+           <span class="price-new">$${indFiyat.toFixed(2)} / kg</span>
+         </span>`
+      : `<span class="product-price">$${p.birimFiyatKgUSD.toFixed(2)} / kg</span>`;
+    const rozet = ind ? `<span class="sale-badge">🏷️ %${Math.round(ind * 100)} İNDİRİM</span>` : "";
+    return `
+    <button type="button" class="product-card${ind ? " on-sale" : ""}" data-id="${p.id}">
+      <span class="product-media">${rozet}${urunGorseli(p.gorsel)}</span>
       <span class="product-body">
         <span class="product-name">${p.ad}</span>
         <span class="product-cat">${p.kategori}</span>
-        <span class="product-price">$${p.birimFiyatKgUSD.toFixed(2)} / kg</span>
+        ${fiyatHTML}
       </span>
-    </button>
-  `).join("");
+    </button>`;
+  }).join("");
 
   grid.querySelectorAll(".product-card").forEach(card => {
     card.addEventListener("click", () => {
@@ -309,14 +345,17 @@ function renderPartners() {
                       : p.gunFark > 0 ? `${p.gunFark} gün daha yavaş`
                       : "Standart süre";
     const yil = buYil - p.kurulus;
+    const kampanya = p.kampanya
+      ? `<span class="partner-kampanya">🔥 Kampanya: ${p.kampanya.etiket}</span>` : "";
     return `
-      <button type="button" class="partner-card" data-id="${p.id}">
+      <button type="button" class="partner-card${p.kampanya ? " has-kampanya" : ""}" data-id="${p.id}">
         <span class="partner-rec hidden">⭐ Önerilen firma</span>
         <span class="partner-flag">🇨🇳</span>
         <span class="partner-name">${p.ad}</span>
         <span class="partner-city">📍 ${p.sehir}, ${p.bolge}</span>
         <span class="partner-since">🏭 ${p.kurulus}'den beri · ${yil} yıllık tecrübe</span>
         <span class="partner-desc">${p.aciklama}</span>
+        ${kampanya}
         <span class="partner-tags">
           <span class="tag tag-price">${fiyatEtiket}</span>
           <span class="tag tag-time">${sureEtiket}</span>
@@ -401,10 +440,22 @@ function calculate() {
   const carpan = partner ? partner.fiyatCarpani : 1;
   const gunFark = partner ? partner.gunFark : 0;
 
-  const birimToplam = product.birimFiyatKgUSD * kg;   // ürün bedeli (USD)
+  // Ürün indirimi (her zaman geçerli — ürün indirimde)
+  const urunIndirim = product.indirim || 0;
+  const birimFiyatEff = product.birimFiyatKgUSD * (1 - urunIndirim);
+
+  const birimToplam = birimFiyatEff * kg;             // indirimli ürün bedeli (USD)
   const nakliyeToplam = kargo.usdKg * kg;             // nakliye bedeli (USD)
   const araToplam = birimToplam + nakliyeToplam;
-  const toplamUSD = araToplam * carpan;               // tedarikçi çarpanı uygulanır
+  let toplamUSD = araToplam * carpan;                 // tedarikçi çarpanı uygulanır
+
+  // Firma kampanyası (sadece seçili firma + ilgili ürün eşleşince)
+  let kampanyaIndirimTutar = 0;
+  const kampanyaAktif = partner && partner.kampanya && partner.kampanya.urun === product.id;
+  if (kampanyaAktif) {
+    kampanyaIndirimTutar = toplamUSD * partner.kampanya.oran;
+    toplamUSD -= kampanyaIndirimTutar;
+  }
 
   // Teslim süresi (negatife düşmesin)
   const minGun = Math.max(1, kargo.minGun + gunFark);
@@ -420,6 +471,23 @@ function calculate() {
     partnerSatir = `<span class="warn">Önerilen firma: <b>${onerilen.ad}</b> — seçmek için karta tıklayın (zorunlu değil).</span>`;
   } else {
     partnerSatir = `<span class="warn">Tedarikçi seçilmedi — standart fiyat gösteriliyor.</span>`;
+  }
+
+  // İndirim satırları
+  let indirimSatirlar = "";
+  if (urunIndirim > 0) {
+    const fark = product.birimFiyatKgUSD * kg - birimToplam;
+    indirimSatirlar += `<span class="save">🏷️ Ürün indirimi (%${Math.round(urunIndirim * 100)}): <b>−${fmtPara(fark)}</b></span>`;
+  }
+  if (kampanyaAktif) {
+    indirimSatirlar += `<span class="save">🔥 ${partner.kampanya.etiket}: <b>−${fmtPara(kampanyaIndirimTutar)}</b></span>`;
+  }
+
+  // Seçili firma yokken bu ürün için kampanyalı firma varsa öner
+  const kampanyaliFirma = PARTNERS.find(p => p.kampanya && p.kampanya.urun === product.id);
+  let kampanyaIpucu = "";
+  if (kampanyaliFirma && (!partner || partner.id !== kampanyaliFirma.id)) {
+    kampanyaIpucu = `<span class="kampanya-ipucu">🔥 <b>${kampanyaliFirma.ad}</b> bu üründe ${kampanyaliFirma.kampanya.etiket.toLowerCase()} sunuyor — o firmayı seçerek daha ucuza alın.</span>`;
   }
 
   // İkincil para birimi referansı (seçili USD değilse USD'yi de göster)
@@ -455,8 +523,10 @@ function calculate() {
     <div class="result-breakdown">
       <span>Ürün bedeli: <b>${fmtPara(birimToplam)}</b></span>
       <span>Nakliye: <b>${fmtPara(nakliyeToplam)}</b></span>
+      ${indirimSatirlar}
       ${partnerSatir}
     </div>
+    ${kampanyaIpucu}
   `;
 }
 

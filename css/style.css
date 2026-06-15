@@ -329,6 +329,33 @@ a { color: inherit; text-decoration: none; }
 .product-name { font-weight: 700; font-size: 15px; }
 .product-cat { font-size: 12.5px; color: var(--muted); }
 .product-price { font-size: 13px; font-weight: 700; color: var(--red); margin-top: 2px; }
+.price-old { color: var(--muted); text-decoration: line-through; font-weight: 600; margin-right: 6px; }
+.price-new { color: var(--red); }
+
+/* İndirim rozeti (ürün kartı) */
+.sale-badge {
+  position: absolute; top: 8px; left: 8px; z-index: 3;
+  background: var(--grad-accent); color: #fff;
+  font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(230,40,57,.4);
+}
+.product-card.on-sale { border-color: var(--gold); }
+
+/* Firma kampanya rozeti */
+.partner-kampanya {
+  display: inline-block; margin-top: 4px;
+  background: #fff3e0; color: #c2410c; border: 1px solid #ffd8a8;
+  font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 8px;
+}
+.partner-card.has-kampanya { border-color: #ffb877; }
+
+/* Sonuç: indirim satırları + kampanya ipucu */
+.result-breakdown .save { color: var(--ok); font-weight: 600; }
+.kampanya-ipucu {
+  display: block; margin-top: 14px; padding: 10px 14px;
+  background: #fff3e0; border: 1px solid #ffd8a8; border-radius: 10px;
+  font-size: 13.5px; color: #9a3412;
+}
 
 /* ============================================================
    HESAPLAYICI

@@ -75,9 +75,11 @@ const KARGO = {
    gunFark       = teslim süresine eklenecek/çıkarılacak gün (- daha hızlı) */
 const PARTNERS = [
   { id: "tangsteel", ad: "Tangshan Iron & Steel Co.", sehir: "Tangshan", bolge: "Hebei", kurulus: 2004,
-    aciklama: "Demir, çelik tel ve paslanmaz sac üretiminde Çin'in en büyük çelik bölgesinden.", fiyatCarpani: 1.04, gunFark: -1 },
+    aciklama: "Demir, çelik tel ve paslanmaz sac üretiminde Çin'in en büyük çelik bölgesinden.", fiyatCarpani: 1.04, gunFark: -1,
+    kampanya: { urun: "tel", oran: 0.12, etiket: "Çelik telde %12 indirim" } },
   { id: "ningbometal", ad: "Ningbo Nonferrous Metals", sehir: "Ningbo", bolge: "Zhejiang", kurulus: 2011,
-    aciklama: "Bakır ve alüminyum gibi demir dışı metallerde hızlı, sertifikalı tedarik.", fiyatCarpani: 1.08, gunFark: -2 },
+    aciklama: "Bakır ve alüminyum gibi demir dışı metallerde hızlı, sertifikalı tedarik.", fiyatCarpani: 1.08, gunFark: -2,
+    kampanya: { urun: "bakir", oran: 0.08, etiket: "Bakırda %8 indirim" } },
   { id: "foshanplas", ad: "Foshan Polymer & Plastics", sehir: "Foshan", bolge: "Guangdong", kurulus: 2009,
     aciklama: "Plastik hammadde (granül) ve PVC profil/boruda geniş kapasite, uygun fiyat.", fiyatCarpani: 0.95, gunFark: 2 },
   { id: "shaoxtex", ad: "Shaoxing Textile & Yarn", sehir: "Shaoxing", bolge: "Zhejiang", kurulus: 2007,
@@ -96,10 +98,10 @@ const PRODUCTS = [
   { id: "paslanmaz",  ad: "Paslanmaz Çelik Sac",     kategori: "Metal",      ikon: "🪞", birimFiyatKgUSD: 3.2,  gorsel: "paslanmaz", onerilenFirma: "tangsteel" },
   { id: "aluminyum",  ad: "Alüminyum Külçe/Profil",  kategori: "Metal",      ikon: "🥫", birimFiyatKgUSD: 2.6,  gorsel: "aluminyum", onerilenFirma: "ningbometal" },
   { id: "bakir",      ad: "Bakır (Tel/Bobin)",       kategori: "Metal",      ikon: "🟤", birimFiyatKgUSD: 9.2,  gorsel: "bakir",     onerilenFirma: "ningbometal" },
-  { id: "plastik",    ad: "Plastik Hammadde (Granül)",kategori: "Polimer",   ikon: "♻️", birimFiyatKgUSD: 1.5,  gorsel: "plastik",   onerilenFirma: "foshanplas" },
+  { id: "plastik",    ad: "Plastik Hammadde (Granül)",kategori: "Polimer",   ikon: "♻️", birimFiyatKgUSD: 1.5,  gorsel: "plastik",   onerilenFirma: "foshanplas", indirim: 0.15 },
   { id: "pvc",        ad: "PVC Boru / Profil",       kategori: "Polimer",    ikon: "🚰", birimFiyatKgUSD: 1.3,  gorsel: "pvc",       onerilenFirma: "foshanplas" },
   { id: "kaucuk",     ad: "Kauçuk Hammadde",         kategori: "Polimer",    ikon: "🛞", birimFiyatKgUSD: 1.9,  gorsel: "kaucuk",    onerilenFirma: "qingchem" },
-  { id: "kumas",      ad: "Tekstil Kumaş (Top)",     kategori: "Tekstil",    ikon: "🧵", birimFiyatKgUSD: 6.0,  gorsel: "kumas",     onerilenFirma: "shaoxtex" },
+  { id: "kumas",      ad: "Tekstil Kumaş (Top)",     kategori: "Tekstil",    ikon: "🧵", birimFiyatKgUSD: 6.0,  gorsel: "kumas",     onerilenFirma: "shaoxtex", indirim: 0.10 },
   { id: "iplik",      ad: "Polyester İplik",         kategori: "Tekstil",    ikon: "🧶", birimFiyatKgUSD: 4.0,  gorsel: "iplik",     onerilenFirma: "shaoxtex" },
   { id: "kimyasal",   ad: "Endüstriyel Kimyasal",    kategori: "Kimya",      ikon: "🧪", birimFiyatKgUSD: 2.2,  gorsel: "kimyasal",  onerilenFirma: "qingchem" },
   { id: "ahsap",      ad: "Ahşap / Kereste",         kategori: "İnşaat",     ikon: "🪵", birimFiyatKgUSD: 0.7,  gorsel: "ahsap",     onerilenFirma: "qingchem" }
