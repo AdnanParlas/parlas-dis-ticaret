@@ -74,45 +74,33 @@ const KARGO = {
    fiyatCarpani  = ürün+nakliye toplamını çarpan (1.0 = standart)
    gunFark       = teslim süresine eklenecek/çıkarılacak gün (- daha hızlı) */
 const PARTNERS = [
-  { id: "hongtai", ad: "Shenzhen Hongtai Electronics", sehir: "Shenzhen", bolge: "Guangdong", kurulus: 2008,
-    aciklama: "Elektronik & LED ürünlerde uzman, premium kalite.", fiyatCarpani: 1.10, gunFark: -2 },
-  { id: "guangtex", ad: "Guangzhou Textile Group", sehir: "Guangzhou", bolge: "Guangdong", kurulus: 2005,
-    aciklama: "Tekstil, giyim ve ayakkabıda geniş üretim kapasitesi.", fiyatCarpani: 0.96, gunFark: 2 },
-  { id: "yiwu", ad: "Yiwu Trade Co.", sehir: "Yiwu", bolge: "Zhejiang", kurulus: 2012,
-    aciklama: "En uygun fiyat; oyuncak, aksesuar ve küçük ürünlerde toptan merkez.", fiyatCarpani: 0.88, gunFark: 5 },
-  { id: "ningbo", ad: "Ningbo Premium Mfg.", sehir: "Ningbo", bolge: "Zhejiang", kurulus: 2010,
-    aciklama: "Ev aletleri ve enerji ürünlerinde hızlı sevkiyat, sıkı kalite kontrol.", fiyatCarpani: 1.05, gunFark: -3 },
-  { id: "qingdao", ad: "Qingdao AutoParts Ltd.", sehir: "Qingdao", bolge: "Shandong", kurulus: 2006,
-    aciklama: "Otomotiv yedek parça ve endüstriyel ürünlerde deneyimli.", fiyatCarpani: 1.02, gunFark: 1 }
+  { id: "tangsteel", ad: "Tangshan Iron & Steel Co.", sehir: "Tangshan", bolge: "Hebei", kurulus: 2004,
+    aciklama: "Demir, çelik tel ve paslanmaz sac üretiminde Çin'in en büyük çelik bölgesinden.", fiyatCarpani: 1.04, gunFark: -1 },
+  { id: "ningbometal", ad: "Ningbo Nonferrous Metals", sehir: "Ningbo", bolge: "Zhejiang", kurulus: 2011,
+    aciklama: "Bakır ve alüminyum gibi demir dışı metallerde hızlı, sertifikalı tedarik.", fiyatCarpani: 1.08, gunFark: -2 },
+  { id: "foshanplas", ad: "Foshan Polymer & Plastics", sehir: "Foshan", bolge: "Guangdong", kurulus: 2009,
+    aciklama: "Plastik hammadde (granül) ve PVC profil/boruda geniş kapasite, uygun fiyat.", fiyatCarpani: 0.95, gunFark: 2 },
+  { id: "shaoxtex", ad: "Shaoxing Textile & Yarn", sehir: "Shaoxing", bolge: "Zhejiang", kurulus: 2007,
+    aciklama: "Kumaş ve iplikte Çin'in en büyük tekstil merkezi; kilo bazlı toptan.", fiyatCarpani: 0.97, gunFark: 1 },
+  { id: "qingchem", ad: "Qingdao Rubber & Chemicals", sehir: "Qingdao", bolge: "Shandong", kurulus: 2006,
+    aciklama: "Kauçuk hammadde, endüstriyel kimyasal ve kereste; liman avantajıyla deneyimli.", fiyatCarpani: 1.01, gunFark: 1 }
 ];
 
-/* Aktif ticaretini yaptığımız örnek ürünler.
+/* Aktif ticaretini yaptığımız hammadde / dökme ürünler — kilo ve ton ile satılır.
    birimFiyatKgUSD = ürünün kilogram başına tahmini birim fiyatı (USD)
-   foto            = ürünle ilgili örnek görsel (internet gerektirir)
+   gorsel          = özel SVG illüstrasyon anahtarı (app.js içinde çizilir)
    onerilenFirma   = bu ürün için önerilen Çinli tedarikçi (PARTNERS id) */
 const PRODUCTS = [
-  { id: "kulaklik", ad: "Kablosuz Kulaklık", kategori: "Elektronik", ikon: "🎧", birimFiyatKgUSD: 22, onerilenFirma: "hongtai",
-    foto: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop" },
-  { id: "saat", ad: "Akıllı Saat", kategori: "Elektronik", ikon: "⌚", birimFiyatKgUSD: 28, onerilenFirma: "hongtai",
-    foto: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop" },
-  { id: "led", ad: "LED Aydınlatma", kategori: "Elektrik", ikon: "💡", birimFiyatKgUSD: 11, onerilenFirma: "hongtai",
-    foto: "https://images.unsplash.com/photo-1517991104123-1d56a6e81ed9?w=400&h=300&fit=crop" },
-  { id: "tekstil", ad: "Tekstil & Giyim", kategori: "Tekstil", ikon: "👕", birimFiyatKgUSD: 8, onerilenFirma: "guangtex",
-    foto: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&h=300&fit=crop" },
-  { id: "ayakkabi", ad: "Spor Ayakkabı", kategori: "Tekstil", ikon: "👟", birimFiyatKgUSD: 12, onerilenFirma: "guangtex",
-    foto: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop" },
-  { id: "oyuncak", ad: "Oyuncak", kategori: "Çocuk", ikon: "🧸", birimFiyatKgUSD: 9, onerilenFirma: "yiwu",
-    foto: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=400&h=300&fit=crop" },
-  { id: "gozluk", ad: "Güneş Gözlüğü", kategori: "Aksesuar", ikon: "🕶️", birimFiyatKgUSD: 18, onerilenFirma: "yiwu",
-    foto: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=300&fit=crop" },
-  { id: "canta", ad: "Çanta & Bavul", kategori: "Aksesuar", ikon: "👜", birimFiyatKgUSD: 15, onerilenFirma: "yiwu",
-    foto: "https://images.unsplash.com/photo-1503602642458-232111445657?w=400&h=300&fit=crop" },
-  { id: "evaleti", ad: "Küçük Ev Aleti", kategori: "Beyaz Eşya", ikon: "🍳", birimFiyatKgUSD: 13, onerilenFirma: "ningbo",
-    foto: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=400&h=300&fit=crop" },
-  { id: "mutfak", ad: "Mutfak Robotu", kategori: "Beyaz Eşya", ikon: "🔪", birimFiyatKgUSD: 17, onerilenFirma: "ningbo",
-    foto: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=400&h=300&fit=crop" },
-  { id: "gunespaneli", ad: "Güneş Paneli", kategori: "Enerji", ikon: "🔆", birimFiyatKgUSD: 20, onerilenFirma: "ningbo",
-    foto: "https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400&h=300&fit=crop" },
-  { id: "yedekparca", ad: "Otomotiv Yedek Parça", kategori: "Otomotiv", ikon: "⚙️", birimFiyatKgUSD: 16, onerilenFirma: "qingdao",
-    foto: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop" }
+  { id: "demir",      ad: "Demir / Çelik Profil",    kategori: "Metal",      ikon: "🏗️", birimFiyatKgUSD: 0.9, gorsel: "demir",     onerilenFirma: "tangsteel" },
+  { id: "tel",        ad: "Çelik Tel (Bobin)",       kategori: "Metal",      ikon: "🔗", birimFiyatKgUSD: 1.2,  gorsel: "tel",       onerilenFirma: "tangsteel" },
+  { id: "paslanmaz",  ad: "Paslanmaz Çelik Sac",     kategori: "Metal",      ikon: "🪞", birimFiyatKgUSD: 3.2,  gorsel: "paslanmaz", onerilenFirma: "tangsteel" },
+  { id: "aluminyum",  ad: "Alüminyum Külçe/Profil",  kategori: "Metal",      ikon: "🥫", birimFiyatKgUSD: 2.6,  gorsel: "aluminyum", onerilenFirma: "ningbometal" },
+  { id: "bakir",      ad: "Bakır (Tel/Bobin)",       kategori: "Metal",      ikon: "🟤", birimFiyatKgUSD: 9.2,  gorsel: "bakir",     onerilenFirma: "ningbometal" },
+  { id: "plastik",    ad: "Plastik Hammadde (Granül)",kategori: "Polimer",   ikon: "♻️", birimFiyatKgUSD: 1.5,  gorsel: "plastik",   onerilenFirma: "foshanplas" },
+  { id: "pvc",        ad: "PVC Boru / Profil",       kategori: "Polimer",    ikon: "🚰", birimFiyatKgUSD: 1.3,  gorsel: "pvc",       onerilenFirma: "foshanplas" },
+  { id: "kaucuk",     ad: "Kauçuk Hammadde",         kategori: "Polimer",    ikon: "🛞", birimFiyatKgUSD: 1.9,  gorsel: "kaucuk",    onerilenFirma: "qingchem" },
+  { id: "kumas",      ad: "Tekstil Kumaş (Top)",     kategori: "Tekstil",    ikon: "🧵", birimFiyatKgUSD: 6.0,  gorsel: "kumas",     onerilenFirma: "shaoxtex" },
+  { id: "iplik",      ad: "Polyester İplik",         kategori: "Tekstil",    ikon: "🧶", birimFiyatKgUSD: 4.0,  gorsel: "iplik",     onerilenFirma: "shaoxtex" },
+  { id: "kimyasal",   ad: "Endüstriyel Kimyasal",    kategori: "Kimya",      ikon: "🧪", birimFiyatKgUSD: 2.2,  gorsel: "kimyasal",  onerilenFirma: "qingchem" },
+  { id: "ahsap",      ad: "Ahşap / Kereste",         kategori: "İnşaat",     ikon: "🪵", birimFiyatKgUSD: 0.7,  gorsel: "ahsap",     onerilenFirma: "qingchem" }
 ];

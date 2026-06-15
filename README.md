@@ -39,9 +39,12 @@ js/app.js         Render, hesaplayıcı, formlar
 
 ## Özelleştirme
 
-İçeriğin çoğu [`js/data.js`](js/data.js) içinden düzenlenebilir: `PRODUCTS` (ürünler, fotoğraf URL'leri,
-önerilen firma), `PARTNERS` (Çinli firmalar, konum, kuruluş yılı), `KARGO`, `KURLAR` (para birimleri/kurlar),
-`YORUMLAR`, `SIRKET` ve `ILETISIM` (telefon/e-posta/adres).
+İçeriğin çoğu [`js/data.js`](js/data.js) içinden düzenlenebilir: `PRODUCTS` (kilo/ton ile satılan
+hammaddeler, birim fiyat, önerilen firma), `PARTNERS` (Çinli firmalar, konum, kuruluş yılı),
+`KARGO`, `KURLAR` (para birimleri/kurlar), `YORUMLAR`, `SIRKET` ve `ILETISIM` (telefon/e-posta/adres).
+
+Ürün görselleri internet gerektirmeyen, [`js/app.js`](js/app.js) içindeki `urunGorseli()` ile çizilen
+özel SVG illüstrasyonlardır (her ürünün `gorsel` anahtarına göre).
 
 ## Güvenlik notu
 
