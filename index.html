@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parlas Dış Ticaret — Çin İthalat & İhracat</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ============ KAYIT / GİRİŞ EKRANI (GATE) ============ -->
+  <section id="auth-screen" class="auth-screen">
+    <div class="auth-bg"></div>
+
+    <!-- Sol taraf: şirket tanıtımı + yorumlar -->
+    <div class="auth-intro">
+      <div class="brand">
+        <span class="brand-logo">🚢</span>
+        <div>
+          <h1 class="brand-name">Parlas Dış Ticaret</h1>
+          <p class="brand-tag">Çin ile güvenli ithalat & ihracat</p>
+        </div>
+      </div>
+
+      <div class="auth-about">
+        <h2 id="auth-about-title"></h2>
+        <p id="auth-about-text"></p>
+      </div>
+
+      <div class="auth-stats" id="auth-stats"><!-- JS doldurur --></div>
+
+      <div class="auth-reviews">
+        <h3>Müşterilerimiz ne diyor?</h3>
+        <div id="auth-reviews-list"><!-- JS doldurur --></div>
+      </div>
+    </div>
+
+    <!-- Sağ taraf: kayıt / giriş kartı -->
+    <div class="auth-card">
+      <div class="brand brand-card-only">
+        <span class="brand-logo">🚢</span>
+        <div>
+          <h1 class="brand-name">Parlas Dış Ticaret</h1>
+          <p class="brand-tag">Çin ile güvenli ithalat & ihracat</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="tab-register" class="auth-tab active" type="button">Kayıt Ol</button>
+        <button id="tab-login" class="auth-tab" type="button">Giriş Yap</button>
+      </div>
+
+      <!-- Kayıt Formu -->
+      <form id="register-form" class="auth-form" novalidate>
+        <label>Ad Soyad
+          <input type="text" name="ad" autocomplete="name" placeholder="Adnan Parlas" />
+        </label>
+        <label>E-posta
+          <input type="email" name="email" autocomplete="email" placeholder="ornek@mail.com" />
+        </label>
+        <label>Telefon
+          <input type="tel" name="telefon" autocomplete="tel" placeholder="+90 5xx xxx xx xx" />
+        </label>
+        <label>Şifre
+          <input type="password" name="sifre" autocomplete="new-password" placeholder="En az 6 karakter" />
+        </label>
+        <p class="form-msg" id="register-msg"></p>
+        <button type="submit" class="btn btn-primary">Kayıt Ol ve Devam Et</button>
+      </form>
+
+      <!-- Giriş Formu -->
+      <form id="login-form" class="auth-form hidden" novalidate>
+        <label>E-posta
+          <input type="email" name="email" autocomplete="email" placeholder="ornek@mail.com" />
+        </label>
+        <label>Şifre
+          <input type="password" name="sifre" autocomplete="current-password" placeholder="Şifreniz" />
+        </label>
+        <p class="form-msg" id="login-msg"></p>
+        <button type="submit" class="btn btn-primary">Giriş Yap</button>
+      </form>
+
+      <p class="auth-note">🔒 Bu site sunucusuz çalışır; bilgiler yalnızca bu tarayıcıda saklanır.
+        Gerçek bir güvenlik / kimlik doğrulama sağlamaz.</p>
+    </div>
+  </section>
+
+  <!-- ============ ANA PANEL (Giriş sonrası) ============ -->
+  <div id="app" class="app hidden">
+
+    <!-- Üst Bar -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand brand-sm">
+          <span class="brand-logo">🚢</span>
+          <span class="brand-name">Parlas Dış Ticaret</span>
+        </div>
+        <nav class="topnav">
+          <a href="#hakkimizda">Hakkımızda</a>
+          <a href="#hesaplayici">Maliyet Hesapla</a>
+          <a href="#talep">Ürün Talebi</a>
+          <a href="#yorumlar">Yorumlar</a>
+          <a href="#iletisim">İletişim</a>
+        </nav>
+        <div class="topbar-user">
+          <span id="user-greet" class="user-greet"></span>
+          <button id="logout-btn" class="btn btn-ghost" type="button">Çıkış</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-inner">
+        <h2>Çin'den Türkiye'ye, uçtan uca dış ticaret çözümleri</h2>
+        <p>Aktif ticaretini yaptığımız ürünleri seçin; ağırlığa göre tahmini maliyet ve teslim
+          süresini anında öğrenin. Kendi ürününüzü de talep edebilirsiniz.</p>
+        <a href="#hesaplayici" class="btn btn-primary btn-lg">Hemen Hesapla</a>
+      </div>
+    </section>
+
+    <main class="container">
+
+      <!-- ===== BİZ KİMİZ ===== -->
+      <section id="hakkimizda" class="block about-block">
+        <div class="about-text">
+          <h3 class="block-title" id="about-title"></h3>
+          <p id="about-text" class="about-paragraph"></p>
+        </div>
+        <div class="about-stats" id="about-stats"><!-- JS doldurur --></div>
+      </section>
+
+      <!-- ===== AKTİF ÜRÜNLER + HESAPLAYICI ===== -->
+      <section id="hesaplayici" class="block">
+        <h3 class="block-title">Aktif Ticaretini Yaptığımız Ürünler</h3>
+        <p class="block-sub">Bir ürün seçin, ağırlığı (kg) girin ve kargo tipini belirleyin.
+          Tahmini maliyet ve teslim süresi otomatik hesaplanır.</p>
+
+        <div id="product-grid" class="product-grid"><!-- JS doldurur --></div>
+
+        <h4 class="sub-head">Çin'deki Tedarikçi Firmamızı Seçin</h4>
+        <p class="block-sub">Seçtiğiniz iş ortağına göre fiyat ve teslim süresi değişir.</p>
+        <div id="partner-grid" class="partner-grid"><!-- JS doldurur --></div>
+
+        <div class="calc">
+          <div class="calc-row">
+            <div class="calc-field">
+              <label for="calc-kg">Ağırlık (kg)</label>
+              <input type="number" id="calc-kg" min="1" step="1" value="100" />
+            </div>
+            <div class="calc-field">
+              <label>Kargo Tipi</label>
+              <div class="seg" id="cargo-seg">
+                <button type="button" class="seg-btn active" data-cargo="hava">✈️ Hava</button>
+                <button type="button" class="seg-btn" data-cargo="deniz">🚢 Deniz</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="calc-result" class="calc-result empty">
+            Hesaplama için yukarıdan bir ürün seçin.
+          </div>
+          <p class="disclaimer">⚠️ Gösterilen değerler tahminîdir; gerçek fiyat ürün, hacim, gümrük
+            ve güncel kurlara göre değişebilir.</p>
+        </div>
+      </section>
+
+      <!-- ===== ÜRÜN TALEP ===== -->
+      <section id="talep" class="block">
+        <h3 class="block-title">Ürün Talebi Oluştur</h3>
+        <p class="block-sub">Listede olmayan, ticaretini yapmak istediğiniz ürünü bize iletin.</p>
+        <form id="request-form" class="request-form" novalidate>
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>Ürün Adı / Açıklaması</label>
+              <input type="text" name="urun" placeholder="Örn. Güneş paneli, oyuncak, tekstil..." />
+            </div>
+            <div class="calc-field">
+              <label>Tahmini Miktar (kg)</label>
+              <input type="number" name="miktar" min="1" step="1" placeholder="Örn. 500" />
+            </div>
+          </div>
+          <label>Notlar
+            <textarea name="not" rows="3" placeholder="Marka, model, kalite, hedef fiyat vb."></textarea>
+          </label>
+          <p class="form-msg" id="request-msg"></p>
+          <button type="submit" class="btn btn-primary">Talebi Gönder</button>
+        </form>
+      </section>
+
+      <!-- ===== MÜŞTERİ YORUMLARI ===== -->
+      <section id="yorumlar" class="block">
+        <h3 class="block-title">Müşteri Yorumları</h3>
+        <p class="block-sub">Bizimle çalışan firmaların deneyimleri.</p>
+        <div id="reviews-grid" class="reviews-grid"><!-- JS doldurur --></div>
+      </section>
+
+      <!-- ===== İLETİŞİM ===== -->
+      <section id="iletisim" class="block">
+        <h3 class="block-title">Çin Dış Ticareti — Bilgi Alın</h3>
+        <p class="block-sub">Firmamızdan Çin ile dış ticaret hakkında bilgi almak isterseniz bize ulaşın.</p>
+        <div class="contact-cards">
+          <a id="contact-phone" class="contact-card" href="#">
+            <span class="contact-ico">📞</span>
+            <span class="contact-label">Telefon</span>
+            <span class="contact-value" id="contact-phone-text"></span>
+          </a>
+          <a id="contact-mail" class="contact-card" href="#">
+            <span class="contact-ico">✉️</span>
+            <span class="contact-label">E-posta</span>
+            <span class="contact-value" id="contact-mail-text"></span>
+          </a>
+          <a id="contact-wa" class="contact-card" href="#" target="_blank" rel="noopener">
+            <span class="contact-ico">💬</span>
+            <span class="contact-label">WhatsApp</span>
+            <span class="contact-value">Mesaj Gönder</span>
+          </a>
+        </div>
+
+        <div class="location">
+          <div class="location-info">
+            <span class="contact-ico">📍</span>
+            <div>
+              <span class="contact-label">Ofis Konumumuz</span>
+              <span class="contact-value" id="contact-address"></span>
+              <a id="contact-map-link" class="map-link" href="#" target="_blank" rel="noopener">Haritada aç →</a>
+            </div>
+          </div>
+          <div class="location-map">
+            <iframe id="map-frame" title="Konum haritası" loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <p>© <span id="year"></span> Parlas Dış Ticaret · Çin İthalat & İhracat · Sunucusuz demo site</p>
+    </footer>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

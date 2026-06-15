@@ -1,0 +1,9 @@
+# Bağımlılıklar (proje saf HTML/CSS/JS — normalde gerekmez)
+node_modules/
+
+# OS / editör dosyaları
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
