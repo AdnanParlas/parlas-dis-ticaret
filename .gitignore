@@ -1,6 +1,9 @@
 # Bağımlılıklar (proje saf HTML/CSS/JS — normalde gerekmez)
 node_modules/
 
+# Kişisel Claude Code ayarları (makineye özel hook/izinler)
+.claude/settings.local.json
+
 # OS / editör dosyaları
 .DS_Store
 Thumbs.db
