@@ -700,16 +700,27 @@ function renderRateTable() {
 }
 
 /* ============================================================
-   CANLI DÖVİZ KURU — Avrupa Merkez Bankası verisi (frankfurter.dev)
-   Tarayıcıdan CORS ile çekilir; iş günlerinde otomatik güncellenir.
+   CANLI DÖVİZ KURU — herkeste güncel; her 10 dakikada bir yenilenir.
+   Birincil kaynak: Avrupa Merkez Bankası (frankfurter.dev) — kur + günlük değişim.
+   Yedek kaynak: open.er-api.com — birincil erişilemezse güncel kur.
    ============================================================ */
-async function kurGuncelle() {
+function _kurArayuzYenile(etiket) {
+  renderRateTable();
+  if ($("#conv-amount")) $("#conv-amount").dispatchEvent(new Event("input"));
+  if (selectedProductId) calculate();
   const info = $("#kur-info");
+  if (info) {
+    const saat = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+    info.innerHTML = `<span class="live-dot"></span> ${etiket} · son yenileme ${saat}`;
+  }
+}
+
+async function kurGuncelle() {
+  // 1) BİRİNCİL: frankfurter (ECB) — güncel kur + günlük değişim
   try {
     const d = new Date(); d.setDate(d.getDate() - 12);
     const start = d.toISOString().slice(0, 10);
-    const url = `https://api.frankfurter.dev/v1/${start}..?base=USD&symbols=TRY,EUR,GBP,CNY`;
-    const res = await fetch(url);
+    const res = await fetch(`https://api.frankfurter.dev/v1/${start}..?base=USD&symbols=TRY,EUR,GBP,CNY`);
     if (!res.ok) throw new Error("HTTP " + res.status);
     const j = await res.json();
     const dates = Object.keys(j.rates || {}).sort();
@@ -718,12 +729,11 @@ async function kurGuncelle() {
     const today = j.rates[dates[dates.length - 1]];
     const prev  = j.rates[dates[dates.length - 2]] || today;
 
-    // kur = 1 USD karşılığı o para biriminden kaç birim (USD bazlı)
     KURLAR.USD.kur = 1;
     ["TRY", "EUR", "GBP", "CNY"].forEach(k => { if (today[k]) KURLAR[k].kur = today[k]; });
 
     // Günlük değişim: her birimin TRY karşısındaki % değişimi
-    const usdBirim   = (r, k) => (k === "USD" ? 1 : r[k]);          // 1 USD = ? k
+    const usdBirim    = (r, k) => (k === "USD" ? 1 : r[k]);          // 1 USD = ? k
     const tryKarsilik = (r, k) => r.TRY / usdBirim(r, k);           // 1 k = ? TRY
     ["USD", "EUR", "GBP", "CNY"].forEach(k => {
       const t = tryKarsilik(today, k), p = tryKarsilik(prev, k);
@@ -731,19 +741,23 @@ async function kurGuncelle() {
     });
     KURLAR.TRY.degisim = 0;
 
-    // Arayüzü yenile
-    renderRateTable();
-    if ($("#conv-amount")) $("#conv-amount").dispatchEvent(new Event("input"));
-    if (selectedProductId) calculate();
-
-    if (info) {
-      const saat = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-      info.innerHTML = `<span class="live-dot"></span> Canlı kur — veri tarihi ${dates[dates.length - 1]} · son yenileme ${saat}`;
-    }
+    _kurArayuzYenile(`Canlı kur — veri tarihi ${dates[dates.length - 1]}`);
     return true;
   } catch (e) {
-    if (info) info.textContent = "⚠️ Canlı kur şu an alınamadı; en son bilinen değerler gösteriliyor.";
-    return false;
+    // 2) YEDEK: open.er-api — yalnızca güncel kur (değişim korunur)
+    try {
+      const res = await fetch("https://open.er-api.com/v6/latest/USD");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const r = (await res.json()).rates || {};
+      KURLAR.USD.kur = 1;
+      ["TRY", "EUR", "GBP", "CNY"].forEach(k => { if (r[k]) KURLAR[k].kur = r[k]; });
+      _kurArayuzYenile("Canlı kur (yedek kaynak)");
+      return true;
+    } catch (e2) {
+      const info = $("#kur-info");
+      if (info) info.textContent = "⚠️ Canlı kur şu an alınamadı; en son bilinen değerler gösteriliyor.";
+      return false;
+    }
   }
 }
 
@@ -860,7 +874,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupConverter();
   renderRateTable();
   kurGuncelle();                                   // canlı kurları çek
-  setInterval(kurGuncelle, 15 * 60 * 1000);        // her 15 dakikada bir yenile
+  setInterval(kurGuncelle, 10 * 60 * 1000);        // her 10 dakikada bir yenile
   setupRequestForm();
   setupContact();
   $("#year").textContent = new Date().getFullYear();
