@@ -7,13 +7,16 @@ Kendi backend sunucumuz yoktur; tarayıcı doğrudan Supabase'e public **anon** 
 
 ## Özellikler
 
-- **Kayıt / Giriş ekranı** — kullanıcı kaydı (localStorage), oturum hatırlama, çıkış.
+- **Kayıt / Giriş ekranı** — Supabase Auth ile kullanıcı kaydı, oturum hatırlama, çıkış.
 - **Biz Kimiz + istatistikler** — şirket tanıtımı ve müşteri yorumları (kayıt ekranında da görünür).
-- **Aktif ürünler** — örnek görselli ürün kartları.
+- **Aktif ürünler** — özel SVG görselli, kg/ton ile satılan hammadde kartları.
 - **Çinli tedarikçi firmalar** — seçilen firmaya göre fiyat ve teslim süresi değişir.
-- **Maliyet/süre hesaplayıcı** — ağırlık (kg) + kargo tipine (Hava/Deniz) göre tahmini maliyet (USD/₺)
-  ve teslim süresi.
-- **Ürün talep formu** — listede olmayan ürün talepleri (localStorage'a kaydedilir).
+- **Maliyet hesaplayıcı** — ağırlık (kg/ton) + kargo + para birimine göre kalem kalem maliyet
+  (mal bedeli, nakliye, sigorta, gümrük vergisi, KDV, komisyon) ve teslim süresi.
+- **Döviz çevirici + canlı kur tablosu** — kurlar Avrupa Merkez Bankası verisinden (frankfurter.dev)
+  otomatik güncellenir; günlük artış/azalış gösterilir.
+- **Abonelik & danışmanlık** — Supabase'de saklanan abonelik; abonelere özel ürün önerileri ve teklifler.
+- **Ürün talep formu** — Supabase'e kaydedilen ürün talepleri.
 - **İletişim & konum** — telefon, e-posta, WhatsApp ve gömülü Google Haritalar.
 
 ## Çalıştırma

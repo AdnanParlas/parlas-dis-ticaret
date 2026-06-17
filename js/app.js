@@ -700,6 +700,54 @@ function renderRateTable() {
 }
 
 /* ============================================================
+   CANLI DÖVİZ KURU — Avrupa Merkez Bankası verisi (frankfurter.dev)
+   Tarayıcıdan CORS ile çekilir; iş günlerinde otomatik güncellenir.
+   ============================================================ */
+async function kurGuncelle() {
+  const info = $("#kur-info");
+  try {
+    const d = new Date(); d.setDate(d.getDate() - 12);
+    const start = d.toISOString().slice(0, 10);
+    const url = `https://api.frankfurter.dev/v1/${start}..?base=USD&symbols=TRY,EUR,GBP,CNY`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const j = await res.json();
+    const dates = Object.keys(j.rates || {}).sort();
+    if (!dates.length) throw new Error("veri yok");
+
+    const today = j.rates[dates[dates.length - 1]];
+    const prev  = j.rates[dates[dates.length - 2]] || today;
+
+    // kur = 1 USD karşılığı o para biriminden kaç birim (USD bazlı)
+    KURLAR.USD.kur = 1;
+    ["TRY", "EUR", "GBP", "CNY"].forEach(k => { if (today[k]) KURLAR[k].kur = today[k]; });
+
+    // Günlük değişim: her birimin TRY karşısındaki % değişimi
+    const usdBirim   = (r, k) => (k === "USD" ? 1 : r[k]);          // 1 USD = ? k
+    const tryKarsilik = (r, k) => r.TRY / usdBirim(r, k);           // 1 k = ? TRY
+    ["USD", "EUR", "GBP", "CNY"].forEach(k => {
+      const t = tryKarsilik(today, k), p = tryKarsilik(prev, k);
+      KURLAR[k].degisim = p ? ((t - p) / p) * 100 : 0;
+    });
+    KURLAR.TRY.degisim = 0;
+
+    // Arayüzü yenile
+    renderRateTable();
+    if ($("#conv-amount")) $("#conv-amount").dispatchEvent(new Event("input"));
+    if (selectedProductId) calculate();
+
+    if (info) {
+      const saat = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+      info.innerHTML = `<span class="live-dot"></span> Canlı kur — veri tarihi ${dates[dates.length - 1]} · son yenileme ${saat}`;
+    }
+    return true;
+  } catch (e) {
+    if (info) info.textContent = "⚠️ Canlı kur şu an alınamadı; en son bilinen değerler gösteriliyor.";
+    return false;
+  }
+}
+
+/* ============================================================
    ABONELİK / DANIŞMANLIK
    ============================================================ */
 // Aboneliği Supabase'den getir (giriş yoksa veya yoksa null)
@@ -811,6 +859,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupCalculator();
   setupConverter();
   renderRateTable();
+  kurGuncelle();                                   // canlı kurları çek
+  setInterval(kurGuncelle, 15 * 60 * 1000);        // her 15 dakikada bir yenile
   setupRequestForm();
   setupContact();
   $("#year").textContent = new Date().getFullYear();
