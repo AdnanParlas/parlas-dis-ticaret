@@ -592,6 +592,7 @@ a { color: inherit; text-decoration: none; }
 #app .sub-head { color: #fff; }
 
 /* Form alanları */
+#app label, #app .calc-field label, #app .request-form label { color: var(--d-text); }
 #app input, #app textarea, #app select { background: #221d49; border-color: var(--d-border); color: #fff; }
 #app input:focus, #app textarea:focus, #app select:focus { border-color: var(--neon-purple); box-shadow: 0 0 0 3px rgba(176,107,255,.25); }
 #app ::placeholder { color: #8e87bd; }

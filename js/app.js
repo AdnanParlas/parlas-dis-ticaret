@@ -3,8 +3,6 @@
    maliyet/süre hesaplayıcı, ürün talep formu, iletişim
    ============================================================ */
 
-const REQUESTS_KEY = "parlas_requests";
-
 /* Seçili durum */
 let selectedProductId = null;
 let selectedPartnerId = null;
@@ -29,11 +27,13 @@ const fmtUSD = (n) => fmtPara(n, "USD");
 /* ============================================================
    EKRAN GEÇİŞLERİ (gate <-> uygulama)
    ============================================================ */
-function showApp(session) {
+function showApp(user) {
   $("#auth-screen").classList.add("hidden");
   $("#app").classList.remove("hidden");
-  $("#user-greet").textContent = "Merhaba, " + (session.ad.split(" ")[0] || session.ad);
+  const ad = kullaniciAdi(user);
+  $("#user-greet").textContent = "Merhaba, " + (ad.split(" ")[0] || ad);
   window.scrollTo(0, 0);
+  renderAbonelik();   // abonelik durumunu (Supabase'den) yükle
 }
 function showAuth() {
   $("#app").classList.add("hidden");
@@ -58,28 +58,39 @@ function setupAuthForms() {
     logForm.classList.remove("hidden"); regForm.classList.add("hidden");
   });
 
-  regForm.addEventListener("submit", (e) => {
+  regForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(regForm);
-    const res = registerUser({
+    const msg = $("#register-msg");
+    const btn = regForm.querySelector("button[type=submit]");
+    btn.disabled = true; msg.textContent = "Kaydınız oluşturuluyor…"; msg.className = "form-msg";
+    const res = await registerUser({
       ad: fd.get("ad"), email: fd.get("email"),
       telefon: fd.get("telefon"), sifre: fd.get("sifre")
     });
-    const msg = $("#register-msg");
-    if (res.ok) { msg.textContent = ""; regForm.reset(); showApp(getSession()); }
-    else { msg.textContent = res.error; msg.className = "form-msg error"; }
+    btn.disabled = false;
+    if (res.ok && res.user && !res.needsConfirm) {
+      msg.textContent = ""; regForm.reset(); showApp(res.user);
+    } else if (res.ok && res.needsConfirm) {
+      msg.textContent = "Kaydınız alındı. Lütfen e-postanıza gelen bağlantıyla hesabınızı doğrulayın."; msg.className = "form-msg success";
+    } else {
+      msg.textContent = res.error; msg.className = "form-msg error";
+    }
   });
 
-  logForm.addEventListener("submit", (e) => {
+  logForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(logForm);
-    const res = loginUser({ email: fd.get("email"), sifre: fd.get("sifre") });
     const msg = $("#login-msg");
-    if (res.ok) { msg.textContent = ""; logForm.reset(); showApp(getSession()); }
+    const btn = logForm.querySelector("button[type=submit]");
+    btn.disabled = true; msg.textContent = "Giriş yapılıyor…"; msg.className = "form-msg";
+    const res = await loginUser({ email: fd.get("email"), sifre: fd.get("sifre") });
+    btn.disabled = false;
+    if (res.ok) { msg.textContent = ""; logForm.reset(); showApp(res.user); }
     else { msg.textContent = res.error; msg.className = "form-msg error"; }
   });
 
-  $("#logout-btn").addEventListener("click", () => { clearSession(); showAuth(); });
+  $("#logout-btn").addEventListener("click", async () => { await logoutUser(); showAuth(); });
 }
 
 /* ---------- Yıldız gösterimi ---------- */
@@ -580,26 +591,29 @@ function calculate() {
    ============================================================ */
 function setupRequestForm() {
   const form = $("#request-form");
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
     const urun = (fd.get("urun") || "").trim();
     const miktar = (fd.get("miktar") || "").trim();
     const not = (fd.get("not") || "").trim();
     const msg = $("#request-msg");
+    const btn = form.querySelector("button[type=submit]");
 
     if (!urun) { msg.textContent = "Lütfen ürün adını girin."; msg.className = "form-msg error"; return; }
 
-    const session = getSession();
-    const list = JSON.parse(localStorage.getItem(REQUESTS_KEY) || "[]");
-    list.push({
-      urun, miktar, not,
-      musteri: session ? session.ad : "",
-      email: session ? session.email : "",
-      tarih: new Date().toISOString()
-    });
-    localStorage.setItem(REQUESTS_KEY, JSON.stringify(list));
+    btn.disabled = true; msg.textContent = "Gönderiliyor…"; msg.className = "form-msg";
+    // Talep Supabase'e yazılır (user_id, RLS ile otomatik auth.uid())
+    const { error } = await supabaseClient
+      .from("product_requests")
+      .insert({ urun, miktar, notlar: not });
+    btn.disabled = false;
 
+    if (error) {
+      msg.textContent = "Talep gönderilemedi: " + error.message;
+      msg.className = "form-msg error";
+      return;
+    }
     form.reset();
     msg.textContent = "✅ Talebiniz alındı! En kısa sürede sizinle iletişime geçeceğiz.";
     msg.className = "form-msg success";
@@ -688,12 +702,17 @@ function renderRateTable() {
 /* ============================================================
    ABONELİK / DANIŞMANLIK
    ============================================================ */
-const SUB_KEY = "parlas_subscription";
-const getSub = () => { try { return JSON.parse(localStorage.getItem(SUB_KEY)); } catch { return null; } };
+// Aboneliği Supabase'den getir (giriş yoksa veya yoksa null)
+async function getSub() {
+  const { data, error } = await supabaseClient
+    .from("subscriptions").select("plan_id, created_at").maybeSingle();
+  if (error) return null;
+  return data;   // { plan_id, created_at } | null
+}
 
-function renderAbonelik() {
+async function renderAbonelik() {
   const box = $("#abonelik-icerik");
-  const sub = getSub();
+  const sub = await getSub();
 
   if (!sub) {
     // Plan kartları
@@ -715,7 +734,7 @@ function renderAbonelik() {
     });
   } else {
     // Abone paneli
-    const plan = ABONELIK.planlar.find(p => p.id === sub.planId) || ABONELIK.planlar[0];
+    const plan = ABONELIK.planlar.find(p => p.id === sub.plan_id) || ABONELIK.planlar[0];
     const onerilenler = ABONELIK.onerilenler.map(o => {
       const u = PRODUCTS.find(p => p.id === o.urunId) || {};
       return `
@@ -730,7 +749,7 @@ function renderAbonelik() {
         <div class="sub-head-row">
           <div>
             <span class="sub-rozet">⭐ ${plan.ad} aboneliği aktif</span>
-            <p class="sub-since">Başlangıç: ${new Date(sub.tarih).toLocaleDateString("tr-TR")}</p>
+            <p class="sub-since">Başlangıç: ${new Date(sub.created_at).toLocaleDateString("tr-TR")}</p>
           </div>
           <button type="button" id="sub-cancel" class="btn btn-ghost-dark">Aboneliği iptal et</button>
         </div>
@@ -757,29 +776,34 @@ function renderAbonelik() {
           <a href="https://wa.me/${ILETISIM.whatsapp}" target="_blank" rel="noopener">WhatsApp'tan yazın</a>.
         </div>
       </div>`;
-    $("#sub-cancel").addEventListener("click", () => {
-      if (confirm("Aboneliğinizi iptal etmek istediğinize emin misiniz?")) {
-        localStorage.removeItem(SUB_KEY);
-        renderAbonelik();
-      }
+    $("#sub-cancel").addEventListener("click", async () => {
+      if (!confirm("Aboneliğinizi iptal etmek istediğinize emin misiniz?")) return;
+      const user = await currentUser();
+      if (user) await supabaseClient.from("subscriptions").delete().eq("user_id", user.id);
+      renderAbonelik();
     });
   }
 }
 
-function abone(planId) {
+async function abone(planId) {
   const plan = ABONELIK.planlar.find(p => p.id === planId);
   if (!plan) return;
+  const user = await currentUser();
+  if (!user) { alert("Abone olmak için önce giriş yapın."); return; }
   const onay = confirm(`${plan.ad} paketine ${fmtPara(plan.fiyatUSD)}/${plan.periyot} karşılığında abone olmak üzeresiniz.\n\n(Demo: gerçek ödeme alınmaz.)\n\nOnaylıyor musunuz?`);
   if (!onay) return;
-  localStorage.setItem(SUB_KEY, JSON.stringify({ planId, tarih: new Date().toISOString() }));
-  renderAbonelik();
+  const { error } = await supabaseClient
+    .from("subscriptions")
+    .upsert({ user_id: user.id, plan_id: planId }, { onConflict: "user_id" });
+  if (error) { alert("Abonelik kaydedilemedi: " + error.message); return; }
+  await renderAbonelik();
   $("#abonelik").scrollIntoView({ behavior: "smooth" });
 }
 
 /* ============================================================
    BAŞLATMA
    ============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   setupAuthForms();
   renderAboutAndReviews();
   renderProducts();
@@ -787,12 +811,16 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCalculator();
   setupConverter();
   renderRateTable();
-  renderAbonelik();
   setupRequestForm();
   setupContact();
   $("#year").textContent = new Date().getFullYear();
 
-  // Oturum varsa doğrudan uygulamayı göster
-  const session = getSession();
-  if (session) showApp(session);
+  // Mevcut Supabase oturumu varsa doğrudan uygulamayı göster
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session) showApp(data.session.user);
+
+  // Oturum değişimlerini izle (başka sekmede çıkış vb.)
+  supabaseClient.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_OUT") showAuth();
+  });
 });
